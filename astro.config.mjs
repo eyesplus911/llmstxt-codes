@@ -11,9 +11,4 @@ export default defineConfig({
     },
     sessionKVBindingName: 'KV_SESSION',
   }),
-  vite: {
-    ssr: {
-      external: ['psl'],
-    },
-  },
 });

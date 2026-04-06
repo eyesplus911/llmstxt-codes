@@ -3,8 +3,6 @@
  * Rejects IPs, localhost, private ranges, and internal CF domains.
  */
 
-import psl from 'psl';
-
 const BLOCKED_TLDS = ['.local', '.internal', '.localhost'];
 const BLOCKED_HOSTS = ['localhost', '127.0.0.1', '::1', '0.0.0.0'];
 const BLOCKED_DOMAINS = ['.workers.dev', '.pages.dev'];
@@ -64,13 +62,7 @@ export function validateDomain(input: string): DomainValidation {
     }
   }
 
-  // Validate with PSL
-  const parsed = psl.parse(domain);
-  if ('error' in parsed && parsed.error) {
-    return { valid: false, domain, error: 'Invalid domain name' };
-  }
-
-  // Basic format check
+  // Basic format check (must have at least one dot, valid chars, valid TLD)
   if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*\.[a-z]{2,}$/.test(domain)) {
     return { valid: false, domain, error: 'Invalid domain format' };
   }

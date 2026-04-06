@@ -300,9 +300,9 @@ export const prerender = true;
 # It will be served at https://yourdomain.com/llms.txt`,
 
     nextjs: () => `// app/llms.txt/route.ts
-import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+${"import { NextResponse } from 'next/server';"}
+${"import fs from 'fs';"}
+${"import path from 'path';"}
 
 export async function GET() {
   const content = fs.readFileSync(
@@ -316,8 +316,8 @@ export async function GET() {
 
     astro: () => `---
 // src/pages/llms.txt.ts
-import type { APIRoute } from 'astro';
-import fs from 'node:fs';
+${"import type { APIRoute } from 'astro';"}
+${"import fs from 'node:fs';"}
 
 export const GET: APIRoute = () => {
   const content = fs.readFileSync('public/llms.txt', 'utf-8');
