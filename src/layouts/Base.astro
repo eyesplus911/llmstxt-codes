@@ -1,0 +1,345 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const { title, description = 'Check your AI readiness score. Scan robots.txt, llms.txt, ai.txt, and sitemap.xml in one place.', ogImage } = Astro.props;
+const canonicalUrl = new URL(Astro.url.pathname, 'https://llmstxt.codes').href;
+
+import '../styles/global.css';
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title} | llmstxt.codes</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalUrl} />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={`${title} | llmstxt.codes`} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonicalUrl} />
+  {ogImage && <meta property="og:image" content={ogImage} />}
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={`${title} | llmstxt.codes`} />
+  <meta name="twitter:description" content={description} />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "llmstxt.codes",
+    "url": "https://llmstxt.codes",
+    "description": description,
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  })} />
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container">
+      <nav class="nav" aria-label="Main navigation">
+        <a href="/" class="nav-logo">
+          <span class="logo-icon">◈</span>
+          <span class="logo-text">llmstxt.codes</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="/" class="nav-link">Check</a></li>
+          <li class="nav-dropdown">
+            <button class="nav-link nav-dropdown-trigger" aria-expanded="false" aria-haspopup="true">
+              Learn <span class="nav-chevron" aria-hidden="true">▾</span>
+            </button>
+            <ul class="nav-dropdown-menu" role="menu">
+              <li role="menuitem"><a href="/learn/llms-txt">llms.txt</a></li>
+              <li role="menuitem"><a href="/learn/robots-txt">robots.txt for AI</a></li>
+              <li role="menuitem"><a href="/learn/ai-txt">ai.txt</a></li>
+              <li role="menuitem"><a href="/learn/sitemap">Sitemap</a></li>
+            </ul>
+          </li>
+          <li><a href="/tools" class="nav-link">Generate</a></li>
+          <li><a href="/docs/api" class="nav-link">API</a></li>
+          <li><a href="/about" class="nav-link">About</a></li>
+        </ul>
+        <button class="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <slot />
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <p class="footer-brand">◈ llmstxt.codes — AI Web Standards Hub</p>
+        <p class="footer-links">
+          <a href="/about">About</a> ·
+          <a href="https://github.com/llmstxt-codes" target="_blank" rel="noopener">GitHub</a>
+        </p>
+        <p class="footer-note">Free & open source. No sign-up required.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
+
+<style>
+  .site-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: 700;
+    font-size: var(--text-lg);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    font-size: var(--text-xl);
+    color: var(--color-primary);
+  }
+
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: var(--space-1);
+    align-items: center;
+  }
+
+  .nav-link {
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.15s, background 0.15s;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .nav-link:hover {
+    color: var(--color-text);
+    background: var(--color-bg);
+    text-decoration: none;
+  }
+
+  .nav-dropdown {
+    position: relative;
+  }
+
+  .nav-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .nav-chevron {
+    font-size: var(--text-xs);
+    transition: transform 0.15s;
+  }
+
+  .nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 180px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-2);
+    list-style: none;
+    z-index: 100;
+  }
+
+  .nav-dropdown:hover .nav-dropdown-menu,
+  .nav-dropdown:focus-within .nav-dropdown-menu {
+    display: block;
+  }
+
+  .nav-dropdown:hover .nav-chevron {
+    transform: rotate(180deg);
+  }
+
+  .nav-dropdown-menu a {
+    display: block;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
+    text-decoration: none;
+  }
+
+  .nav-dropdown-menu a:hover {
+    background: var(--color-bg);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .site-footer {
+    margin-top: auto;
+    padding: var(--space-12) 0;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .footer-content {
+    text-align: center;
+  }
+
+  .footer-brand {
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: var(--space-2);
+  }
+
+  .footer-links {
+    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-2);
+  }
+
+  .footer-links a {
+    color: var(--color-text-secondary);
+  }
+
+  .footer-links a:hover {
+    color: var(--color-primary);
+  }
+
+  .footer-note {
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+  }
+
+  /* ─── Hamburger button ─── */
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+  }
+
+  .nav-hamburger:hover {
+    background: var(--color-bg);
+  }
+
+  .hamburger-line {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--color-text);
+    border-radius: 2px;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+
+  .nav-hamburger[aria-expanded="true"] .hamburger-line:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .nav-hamburger[aria-expanded="true"] .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-hamburger[aria-expanded="true"] .hamburger-line:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* ─── Mobile nav ─── */
+  @media (max-width: 640px) {
+    .nav-hamburger {
+      display: flex;
+    }
+
+    .nav-links {
+      display: none;
+      position: absolute;
+      top: 64px;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      box-shadow: var(--shadow-lg);
+      padding: var(--space-2) var(--space-4);
+      gap: 0;
+    }
+
+    .nav-links.open {
+      display: flex;
+    }
+
+    .nav-link {
+      padding: var(--space-3) var(--space-2);
+      font-size: var(--text-base);
+      width: 100%;
+    }
+
+    .nav-dropdown-menu {
+      position: static;
+      box-shadow: none;
+      border: none;
+      padding-left: var(--space-4);
+    }
+  }
+</style>
+
+<script>
+  const hamburger = document.querySelector('.nav-hamburger');
+  const navLinks = document.querySelector('.nav-links');
+  if (hamburger && navLinks) {
+    hamburger.addEventListener('click', () => {
+      const expanded = hamburger.getAttribute('aria-expanded') === 'true';
+      hamburger.setAttribute('aria-expanded', String(!expanded));
+      navLinks.classList.toggle('open');
+    });
+  }
+</script>
