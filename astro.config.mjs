@@ -9,6 +9,7 @@ export default defineConfig({
     platformProxy: {
       enabled: true,
     },
+    imageService: 'passthrough',
     sessionKVBindingName: 'KV_SESSION',
   }),
 });
