@@ -1,0 +1,259 @@
+---
+import Base from '../../../layouts/Base.astro';
+export const prerender = true;
+---
+<Base title="Generate robots.txt" description="Generate a robots.txt file with AI crawler controls. Choose which AI bots to allow or block.">
+  <div class="generator-page">
+    <div class="container content">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a> / <a href="/learn/robots-txt">robots.txt</a> / <span>Generator</span>
+      </nav>
+
+      <h1>Generate robots.txt</h1>
+      <p class="lead">Configure which AI crawlers can access your site.</p>
+
+      <div class="wizard" id="wizard">
+        <div class="steps-bar" role="tablist">
+          <button class="step-indicator active" data-step="1" role="tab" aria-selected="true">
+            <span class="step-num">1</span> Crawlers
+          </button>
+          <button class="step-indicator" data-step="2" role="tab" aria-selected="false">
+            <span class="step-num">2</span> Export
+          </button>
+        </div>
+
+        <!-- Step 1: Crawler config -->
+        <div class="step-panel active" id="step-1" role="tabpanel">
+          <h2>AI Crawler Permissions</h2>
+          <p class="hint">Choose a preset or customize per-bot access.</p>
+
+          <div class="preset-group">
+            <button class="preset active" data-preset="friendly">AI-Friendly</button>
+            <button class="preset" data-preset="selective">Selective</button>
+            <button class="preset" data-preset="block-all">Block All AI</button>
+            <button class="preset" data-preset="custom">Custom</button>
+          </div>
+
+          <div class="bots-list" id="bots-list">
+            <!-- Populated by script -->
+          </div>
+
+          <div class="extras">
+            <div class="field">
+              <label for="sitemap-url">Sitemap URL (optional)</label>
+              <input type="url" id="sitemap-url" placeholder="https://example.com/sitemap.xml" />
+            </div>
+            <div class="field">
+              <label for="crawl-delay">Crawl-delay (seconds, optional)</label>
+              <input type="number" id="crawl-delay" min="0" max="60" placeholder="10" />
+            </div>
+          </div>
+
+          <div class="nav-buttons">
+            <span></span>
+            <button class="action-btn action-btn-primary" id="next-1">Generate →</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Export -->
+        <div class="step-panel" id="step-2" role="tabpanel">
+          <h2>Your robots.txt</h2>
+          <p class="hint">Save this at <code>/robots.txt</code> on your domain root.</p>
+
+          <div class="output-box">
+            <pre><code id="output"></code></pre>
+            <button class="copy-btn" id="copy-btn">Copy</button>
+          </div>
+
+          <div class="nav-buttons">
+            <button class="action-btn action-btn-secondary" id="prev-2">← Back</button>
+            <a href="/" class="action-btn action-btn-primary">Scan your site</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .generator-page { padding: var(--space-8) 0 var(--space-16); }
+  .content { max-width: 680px; }
+  .breadcrumb { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-6); }
+  .breadcrumb a { color: var(--color-text-secondary); }
+  h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-2); }
+  .lead { color: var(--color-text-secondary); margin-bottom: var(--space-8); }
+  h2 { font-size: var(--text-xl); font-weight: 600; margin-bottom: var(--space-4); }
+  .hint { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-4); }
+
+  .steps-bar { display: flex; gap: var(--space-1); margin-bottom: var(--space-8); border-bottom: 1px solid var(--color-border); }
+  .step-indicator { flex: 1; padding: var(--space-3); text-align: center; background: none; border: none; border-bottom: 2px solid transparent; font-size: var(--text-sm); font-weight: 500; color: var(--color-text-muted); cursor: pointer; font-family: var(--font-sans); }
+  .step-indicator.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+  .step-indicator.done { color: var(--color-text); }
+  .step-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--color-bg); font-size: 12px; font-weight: 600; margin-right: 4px; }
+  .step-indicator.active .step-num { background: var(--color-primary); color: white; }
+  .step-indicator.done .step-num { background: var(--color-tier-ai-ready); color: white; }
+
+  .step-panel { display: none; }
+  .step-panel.active { display: block; }
+
+  .preset-group { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); flex-wrap: wrap; }
+  .preset { padding: var(--space-2) var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-surface); font-size: var(--text-sm); cursor: pointer; font-family: var(--font-sans); color: var(--color-text-secondary); transition: all 0.15s; }
+  .preset.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+
+  .bots-list { display: grid; gap: var(--space-2); }
+  .bot-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+  .bot-info { display: flex; flex-direction: column; }
+  .bot-name { font-weight: 600; font-size: var(--text-sm); font-family: var(--font-mono); }
+  .bot-company { font-size: var(--text-xs); color: var(--color-text-muted); }
+  .bot-toggle { position: relative; width: 44px; height: 24px; }
+  .bot-toggle input { opacity: 0; width: 0; height: 0; }
+  .bot-toggle .slider { position: absolute; inset: 0; background: #e5e7eb; border-radius: 12px; cursor: pointer; transition: background 0.2s; }
+  .bot-toggle .slider::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: transform 0.2s; }
+  .bot-toggle input:checked + .slider { background: var(--color-tier-ai-ready); }
+  .bot-toggle input:checked + .slider::before { transform: translateX(20px); }
+
+  .extras { margin-top: var(--space-6); }
+  .field { margin-bottom: var(--space-4); }
+  .field label { display: block; font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-1); }
+  .field input { width: 100%; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: var(--text-base); font-family: var(--font-sans); background: var(--color-surface); color: var(--color-text); }
+  .field input:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15); }
+
+  .nav-buttons { display: flex; justify-content: space-between; margin-top: var(--space-8); }
+
+  .output-box { position: relative; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); margin: var(--space-4) 0; }
+  .output-box pre { margin: 0; overflow-x: auto; }
+  .output-box code { font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.6; white-space: pre; }
+  .copy-btn { position: absolute; top: var(--space-2); right: var(--space-2); padding: var(--space-1) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: white; font-size: var(--text-xs); cursor: pointer; font-family: var(--font-sans); }
+  .copy-btn:hover { background: var(--color-bg); }
+
+  :global(.action-btn) { padding: var(--space-3) var(--space-6); border-radius: var(--radius-md); font-size: var(--text-sm); font-weight: 600; font-family: var(--font-sans); cursor: pointer; text-decoration: none; border: none; transition: background 0.15s; display: inline-block; }
+  :global(.action-btn-primary) { background: var(--color-primary); color: white; }
+  :global(.action-btn-primary:hover) { background: var(--color-primary-hover); }
+  :global(.action-btn-secondary) { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
+  :global(.action-btn-secondary:hover) { background: var(--color-bg); }
+</style>
+
+<script>
+  const bots = [
+    { name: 'GPTBot', company: 'OpenAI', purpose: 'Training + browsing' },
+    { name: 'ChatGPT-User', company: 'OpenAI', purpose: 'Live browsing' },
+    { name: 'OAI-SearchBot', company: 'OpenAI', purpose: 'Search' },
+    { name: 'Claude-Web', company: 'Anthropic', purpose: 'Web access' },
+    { name: 'anthropic-ai', company: 'Anthropic', purpose: 'Training' },
+    { name: 'Google-Extended', company: 'Google', purpose: 'AI training' },
+    { name: 'Bytespider', company: 'ByteDance', purpose: 'Training' },
+    { name: 'CCBot', company: 'Common Crawl', purpose: 'Open dataset' },
+    { name: 'PerplexityBot', company: 'Perplexity', purpose: 'AI search' },
+    { name: 'cohere-ai', company: 'Cohere', purpose: 'Training' },
+    { name: 'meta-externalagent', company: 'Meta', purpose: 'AI features' },
+  ];
+
+  const presets: Record<string, Record<string, boolean>> = {
+    'friendly': Object.fromEntries(bots.map(b => [b.name, true])),
+    'selective': { 'ChatGPT-User': true, 'Claude-Web': true, 'PerplexityBot': true, 'OAI-SearchBot': true },
+    'block-all': Object.fromEntries(bots.map(b => [b.name, false])),
+    'custom': {},
+  };
+
+  const list = document.getElementById('bots-list')!;
+
+  function renderBots(allowed: Record<string, boolean>) {
+    list.innerHTML = '';
+    bots.forEach(bot => {
+      const checked = allowed[bot.name] ?? false;
+      const row = document.createElement('div');
+      row.className = 'bot-row';
+      row.innerHTML = `
+        <div class="bot-info">
+          <span class="bot-name">${bot.name}</span>
+          <span class="bot-company">${bot.company} · ${bot.purpose}</span>
+        </div>
+        <label class="bot-toggle">
+          <input type="checkbox" data-bot="${bot.name}" ${checked ? 'checked' : ''} />
+          <span class="slider"></span>
+        </label>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  // Initial render
+  renderBots(presets['friendly']);
+
+  // Presets
+  document.querySelectorAll('.preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const preset = (btn as HTMLElement).dataset.preset || 'friendly';
+      if (preset !== 'custom') {
+        renderBots(presets[preset]);
+      }
+    });
+  });
+
+  // Navigation
+  let currentStep = 1;
+  function goToStep(step: number) {
+    currentStep = step;
+    document.querySelectorAll('.step-panel').forEach((p, i) => p.classList.toggle('active', i + 1 === step));
+    document.querySelectorAll('.step-indicator').forEach((ind, i) => {
+      ind.classList.toggle('active', i + 1 === step);
+      ind.classList.toggle('done', i + 1 < step);
+    });
+    if (step === 2) generateOutput();
+  }
+
+  document.getElementById('next-1')?.addEventListener('click', () => goToStep(2));
+  document.getElementById('prev-2')?.addEventListener('click', () => goToStep(1));
+  document.querySelectorAll('.step-indicator').forEach(ind => {
+    ind.addEventListener('click', () => goToStep(parseInt((ind as HTMLElement).dataset.step || '1')));
+  });
+
+  function generateOutput() {
+    const lines: string[] = [];
+    const sitemapUrl = (document.getElementById('sitemap-url') as HTMLInputElement).value;
+    const crawlDelay = (document.getElementById('crawl-delay') as HTMLInputElement).value;
+
+    // Default rule
+    lines.push('User-agent: *', 'Allow: /', '');
+
+    // AI bot rules
+    const checkboxes = list.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+    const allowed: string[] = [];
+    const blocked: string[] = [];
+
+    checkboxes.forEach(cb => {
+      const bot = cb.dataset.bot || '';
+      if (cb.checked) allowed.push(bot);
+      else blocked.push(bot);
+    });
+
+    blocked.forEach(bot => {
+      lines.push(`User-agent: ${bot}`, 'Disallow: /');
+      if (crawlDelay) lines.push(`Crawl-delay: ${crawlDelay}`);
+      lines.push('');
+    });
+
+    if (sitemapUrl) lines.push(`Sitemap: ${sitemapUrl}`);
+
+    document.getElementById('output')!.textContent = lines.join('\n').trim();
+  }
+
+  // Copy
+  document.getElementById('copy-btn')?.addEventListener('click', () => {
+    const text = document.getElementById('output')!.textContent || '';
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copy-btn')!;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+  });
+
+  // Pre-fill from ?domain= query param
+  const urlDomain = new URLSearchParams(window.location.search).get('domain');
+  if (urlDomain) {
+    const sitemapUrl = document.getElementById('sitemap-url') as HTMLInputElement;
+    if (sitemapUrl && !sitemapUrl.value) sitemapUrl.value = `https://${urlDomain}/sitemap.xml`;
+  }
+</script>

@@ -1,0 +1,141 @@
+---
+import Base from '../layouts/Base.astro';
+export const prerender = true;
+---
+<Base title="About — llms.txt.codes" description="llms.txt.codes helps websites become AI-ready. Free scanner, generators, and learn hub for llms.txt, robots.txt, ai.txt, and sitemap.xml.">
+  <article class="about-page">
+    <div class="container content">
+      <h1>About llms.txt.codes</h1>
+      <p class="lead">
+        A free tool to help your website speak to AI. Scan your domain, generate the right
+        files, and learn what each standard does.
+      </p>
+
+      <section>
+        <h2>What we check</h2>
+        <p>Our scanner evaluates four files that control how AI interacts with your site:</p>
+        <div class="check-grid">
+          <div class="check-card">
+            <h3>llms.txt</h3>
+            <p>Structured information for AI language models — your site's README for AI.</p>
+            <a href="/learn/llms-txt">Learn more →</a>
+          </div>
+          <div class="check-card">
+            <h3>robots.txt</h3>
+            <p>Controls which AI crawlers can access your content and which paths are off-limits.</p>
+            <a href="/learn/robots-txt">Learn more →</a>
+          </div>
+          <div class="check-card">
+            <h3>ai.txt</h3>
+            <p>Declares your AI usage policies — what AI companies can and can't do with your content.</p>
+            <a href="/learn/ai-txt">Learn more →</a>
+          </div>
+          <div class="check-card">
+            <h3>sitemap.xml</h3>
+            <p>Helps AI crawlers discover all your pages, not just the ones linked from your homepage.</p>
+            <a href="/learn/sitemap">Learn more →</a>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>How scoring works</h2>
+        <p>
+          We compute a weighted AI Readiness Score from 0-100 based on six dimensions:
+        </p>
+        <table>
+          <thead>
+            <tr><th>Dimension</th><th>Weight</th><th>What we check</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>llms.txt</td><td>30%</td><td>Exists, has title, description, sections, links, proper content type, reasonable size</td></tr>
+            <tr><td>robots.txt</td><td>25%</td><td>Exists, addresses AI bots explicitly, allows reasonable access, has sitemap directive</td></tr>
+            <tr><td>sitemap.xml</td><td>15%</td><td>Exists, valid XML, contains URLs</td></tr>
+            <tr><td>ai.txt</td><td>10%</td><td>Exists, has parseable policies (experimental)</td></tr>
+            <tr><td>Meta tags</td><td>10%</td><td>AI-relevant meta tags and headers</td></tr>
+            <tr><td>HTTP headers</td><td>10%</td><td>Proper content types, caching, accessibility</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Tiers</h3>
+        <div class="tiers">
+          <div class="tier"><span class="tier-badge ai-ready">AI-Ready</span> 90-100 — Comprehensive AI configuration</div>
+          <div class="tier"><span class="tier-badge getting-there">Getting There</span> 70-89 — Good foundation, room to improve</div>
+          <div class="tier"><span class="tier-badge needs-work">Needs Work</span> 50-69 — Basic setup, significant gaps</div>
+          <div class="tier"><span class="tier-badge not-configured">Not Configured</span> 0-49 — Little to no AI configuration</div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Open & free</h2>
+        <p>
+          llms.txt.codes is free to use. All scanning happens client-side — we fetch your
+          files through a lightweight proxy but all parsing, scoring, and validation runs
+          in your browser. No data is sent to third parties.
+        </p>
+        <p>
+          Scan results are cached in our database so report pages load instantly. You can
+          rescan at any time to get fresh results.
+        </p>
+      </section>
+
+      <section>
+        <h2>API</h2>
+        <p>
+          We offer a thin read-only API for checking cached scores:
+        </p>
+        <pre><code set:html={`GET /api/v1/score/&lbrace;domain&rbrace;
+
+&lbrace;
+  "domain": "example.com",
+  "score": 82,
+  "tier": "getting-there",
+  "scanned_at": "2024-12-01T10:30:00Z",
+  "report_url": "/report/example.com"
+&rbrace;`} /></pre>
+        <p class="hint">Results are cached for up to 1 hour. Returns 404 if the domain hasn't been scanned.</p>
+      </section>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .about-page { padding: var(--space-8) 0 var(--space-16); }
+  .content { max-width: var(--content-width); }
+  h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-4); }
+  .lead { font-size: var(--text-lg); color: var(--color-text-secondary); line-height: var(--leading-relaxed); margin-bottom: var(--space-8); }
+  h2 { font-size: var(--text-xl); font-weight: 600; margin-top: var(--space-10); margin-bottom: var(--space-4); }
+  h3 { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-6); margin-bottom: var(--space-3); }
+  .hint { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+  section { margin-bottom: var(--space-8); }
+  p { line-height: var(--leading-relaxed); margin-bottom: var(--space-3); }
+
+  .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-top: var(--space-4); }
+  .check-card { padding: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+  .check-card h3 { margin-top: 0; font-family: var(--font-mono); }
+  .check-card p { font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-2); }
+  .check-card a { font-size: var(--text-sm); color: var(--color-primary); text-decoration: none; font-weight: 500; }
+  .check-card a:hover { text-decoration: underline; }
+
+  table { width: 100%; border-collapse: collapse; margin: var(--space-4) 0; }
+  th, td { padding: var(--space-3); text-align: left; border-bottom: 1px solid var(--color-border); }
+  th { font-weight: 600; font-size: var(--text-sm); color: var(--color-text-secondary); }
+  td { font-size: var(--text-sm); }
+
+  .tiers { margin-top: var(--space-4); }
+  .tier { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; font-size: var(--text-sm); }
+  .tier-badge { display: inline-block; padding: 2px 10px; border-radius: var(--radius-full); font-weight: 600; font-size: var(--text-xs); min-width: 100px; text-align: center; }
+  .ai-ready { background: var(--color-tier-ai-ready-bg); color: var(--color-tier-ai-ready); }
+  .getting-there { background: var(--color-tier-getting-there-bg); color: var(--color-tier-getting-there); }
+  .needs-work { background: var(--color-tier-needs-work-bg); color: var(--color-tier-needs-work); }
+  .not-configured { background: var(--color-tier-not-configured-bg); color: var(--color-tier-not-configured); }
+
+  code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-bg); padding: 1px 4px; border-radius: var(--radius-sm); }
+  pre { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); overflow-x: auto; margin: var(--space-4) 0; }
+  pre code { background: none; padding: 0; font-size: var(--text-sm); line-height: 1.6; }
+
+  @media (max-width: 640px) {
+    .check-grid { grid-template-columns: 1fr; }
+  }
+</style>

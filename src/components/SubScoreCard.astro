@@ -1,0 +1,172 @@
+---
+/**
+ * Sub-score card showing individual file check status.
+ */
+interface Props {
+  label: string;
+  score: number | null;
+  weight: string;
+  status: 'found' | 'not-found' | 'error' | 'loading';
+  errorMessage?: string;
+  isPrimary?: boolean;
+}
+
+const { label, score, weight, status, errorMessage, isPrimary = false } = Astro.props;
+
+const statusIcons: Record<string, string> = {
+  found: '✓',
+  'not-found': '✗',
+  error: '!',
+  loading: '◌',
+};
+
+const statusColors: Record<string, string> = {
+  found: 'var(--color-success)',
+  'not-found': 'var(--color-text-muted)',
+  error: 'var(--color-error)',
+  loading: 'var(--color-text-muted)',
+};
+
+const barWidth = score !== null ? Math.max(score, 2) : 0;
+---
+
+<div class:list={['sub-score-card', { primary: isPrimary, 'has-error': status === 'error' }]}>
+  <div class="card-header">
+    <span class="status-icon" style={`color: ${statusColors[status]}`} aria-hidden="true">
+      {statusIcons[status]}
+    </span>
+    <span class="card-label">{label}</span>
+    <span class="card-weight">{weight}</span>
+  </div>
+
+  {status !== 'loading' && (
+    <div class="card-body">
+      <div class="score-bar-bg">
+        <div
+          class="score-bar-fill"
+          style={`width: ${barWidth}%; background: ${statusColors[status === 'not-found' ? 'not-found' : 'found']};`}
+          role="progressbar"
+          aria-valuenow={score ?? 0}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`${label} score: ${score ?? 0} out of 100`}
+        />
+      </div>
+      <span class="score-value">{score !== null ? score : '—'}</span>
+    </div>
+  )}
+
+  {status === 'loading' && (
+    <div class="card-body">
+      <div class="score-bar-bg skeleton" />
+      <span class="score-value">…</span>
+    </div>
+  )}
+
+  {errorMessage && (
+    <p class="card-error">{errorMessage}</p>
+  )}
+</div>
+
+<style>
+  .sub-score-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    transition: border-color 0.15s;
+  }
+
+  .sub-score-card:hover {
+    border-color: var(--color-border-hover);
+  }
+
+  .sub-score-card.primary {
+    padding: var(--space-5);
+  }
+
+  .sub-score-card.has-error {
+    border-left: 3px solid var(--color-error);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .status-icon {
+    font-weight: 700;
+    font-size: var(--text-lg);
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .card-label {
+    font-weight: 600;
+    font-size: var(--text-sm);
+    flex: 1;
+  }
+
+  .primary .card-label {
+    font-size: var(--text-base);
+  }
+
+  .card-weight {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    background: var(--color-bg);
+    padding: 2px 6px;
+    border-radius: var(--radius-full);
+  }
+
+  .card-body {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .score-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: var(--color-bg);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+
+  .primary .score-bar-bg {
+    height: 10px;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.8s ease-out;
+  }
+
+  .score-value {
+    font-weight: 600;
+    font-size: var(--text-sm);
+    min-width: 28px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .card-error {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-error);
+  }
+
+  .skeleton {
+    animation: shimmer 1.5s infinite;
+    background: linear-gradient(90deg, var(--color-bg) 25%, var(--color-border) 50%, var(--color-bg) 75%);
+    background-size: 200% 100%;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>

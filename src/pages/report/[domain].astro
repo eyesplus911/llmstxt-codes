@@ -1,0 +1,216 @@
+---
+export const prerender = false;
+
+import Base from '../../layouts/Base.astro';
+import { validateDomain } from '../../lib/domain';
+import { getTier, TIER_CONFIG } from '../../lib/scoring';
+
+const { domain } = Astro.params;
+
+if (!domain) {
+  return Astro.redirect('/');
+}
+
+const validation = validateDomain(domain);
+if (!validation.valid) {
+  return Astro.redirect('/');
+}
+
+const cleanDomain = validation.domain;
+
+// Try to fetch cached results from D1
+let scanData: {
+  score: number | null;
+  llms_txt_score: number | null;
+  robots_txt_score: number | null;
+  ai_txt_score: number | null;
+  sitemap_score: number | null;
+  meta_score: number | null;
+  headers_score: number | null;
+  score_version: number;
+  scanned_at: string;
+  results_r2_key: string | null;
+} | null = null;
+
+try {
+  const db = Astro.locals.runtime.env.DB;
+  scanData = await db.prepare(
+    'SELECT score, llms_txt_score, robots_txt_score, ai_txt_score, sitemap_score, meta_score, headers_score, score_version, scanned_at, results_r2_key FROM scans WHERE domain = ? ORDER BY scanned_at DESC LIMIT 1'
+  ).bind(cleanDomain).first();
+} catch {
+  // D1 unavailable — page still works, will prompt scan
+}
+
+const hasData = scanData && scanData.score !== null;
+const score = scanData?.score ?? 0;
+const tier = hasData ? getTier(score) : 'not-configured';
+const tierConfig = TIER_CONFIG[tier];
+---
+<Base
+  title={`${cleanDomain} — AI Readiness Report`}
+  description={hasData ? `${cleanDomain} scored ${score}/100 (${tierConfig.label}) on AI readiness.` : `Check ${cleanDomain}'s AI readiness score.`}
+>
+  <section class="report-hero" style={`background: ${tierConfig.bg};`}>
+    <div class="container">
+      <div class="report-header">
+        <h1 class="report-domain">{cleanDomain}</h1>
+        {hasData ? (
+          <div class="report-score-badge" style={`background: ${tierConfig.color}; color: white;`}>
+            {tierConfig.label}
+          </div>
+        ) : (
+          <div class="report-score-badge" style="background: var(--color-text-muted); color: white;">
+            Not scanned
+          </div>
+        )}
+      </div>
+
+      {hasData && (
+        <div class="report-gauge-container">
+          <svg viewBox="0 0 200 120" role="img" aria-label={`AI Readiness Score: ${score} out of 100, tier ${tierConfig.label}`} class="report-gauge-svg">
+            <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="12" stroke-linecap="round"/>
+            <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke={tierConfig.color} stroke-width="12" stroke-linecap="round"
+              stroke-dasharray={`${Math.PI * 80}`}
+              stroke-dashoffset={`${Math.PI * 80 - (score / 100) * Math.PI * 80}`}
+            />
+            <text x="100" y="85" text-anchor="middle" class="g-score" fill="var(--color-text)">{score}</text>
+            <text x="100" y="110" text-anchor="middle" class="g-tier" fill={tierConfig.color}>{tierConfig.label}</text>
+          </svg>
+          <p class="report-scanned-at">
+            Last scanned: {new Date(scanData!.scanned_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            · Algorithm v{scanData!.score_version}
+          </p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section class="report-body">
+    <div class="container">
+      {hasData ? (
+        <div class="report-grid">
+          <div class="report-card primary">
+            <h3>llms.txt</h3>
+            <div class="report-card-score">
+              <div class="score-bar-bg"><div class="score-bar-fill" style={`width: ${Math.max(scanData!.llms_txt_score ?? 0, 2)}%; background: ${(scanData!.llms_txt_score ?? 0) > 0 ? 'var(--color-success)' : 'var(--color-text-muted)'};`}></div></div>
+              <span class="score-value">{scanData!.llms_txt_score ?? 0}</span>
+            </div>
+            <p class="report-card-weight">30% weight</p>
+          </div>
+
+          <div class="report-card primary">
+            <h3>robots.txt</h3>
+            <div class="report-card-score">
+              <div class="score-bar-bg"><div class="score-bar-fill" style={`width: ${Math.max(scanData!.robots_txt_score ?? 0, 2)}%; background: ${(scanData!.robots_txt_score ?? 0) > 0 ? 'var(--color-success)' : 'var(--color-text-muted)'};`}></div></div>
+              <span class="score-value">{scanData!.robots_txt_score ?? 0}</span>
+            </div>
+            <p class="report-card-weight">25% weight</p>
+          </div>
+
+          <div class="report-card">
+            <h3>sitemap.xml</h3>
+            <div class="report-card-score">
+              <div class="score-bar-bg"><div class="score-bar-fill" style={`width: ${Math.max(scanData!.sitemap_score ?? 0, 2)}%; background: ${(scanData!.sitemap_score ?? 0) > 0 ? 'var(--color-success)' : 'var(--color-text-muted)'};`}></div></div>
+              <span class="score-value">{scanData!.sitemap_score ?? 0}</span>
+            </div>
+            <p class="report-card-weight">15% weight</p>
+          </div>
+
+          <div class="report-card">
+            <h3>ai.txt <span class="experimental-badge">Experimental</span></h3>
+            <div class="report-card-score">
+              <div class="score-bar-bg"><div class="score-bar-fill" style={`width: ${Math.max(scanData!.ai_txt_score ?? 0, 2)}%; background: ${(scanData!.ai_txt_score ?? 0) > 0 ? 'var(--color-success)' : 'var(--color-text-muted)'};`}></div></div>
+              <span class="score-value">{scanData!.ai_txt_score ?? 0}</span>
+            </div>
+            <p class="report-card-weight">10% weight</p>
+          </div>
+
+          <div class="report-card">
+            <h3>Meta tags</h3>
+            <div class="report-card-score">
+              <div class="score-bar-bg"><div class="score-bar-fill" style={`width: 2%; background: var(--color-text-muted);`}></div></div>
+              <span class="score-value">{scanData!.meta_score ?? 0}</span>
+            </div>
+            <p class="report-card-weight">10% weight</p>
+          </div>
+
+          <div class="report-card">
+            <h3>Headers</h3>
+            <div class="report-card-score">
+              <div class="score-bar-bg"><div class="score-bar-fill" style={`width: 2%; background: var(--color-text-muted);`}></div></div>
+              <span class="score-value">{scanData!.headers_score ?? 0}</span>
+            </div>
+            <p class="report-card-weight">10% weight</p>
+          </div>
+        </div>
+      ) : (
+        <div class="report-empty">
+          <p>This domain hasn't been scanned yet.</p>
+          <a href={`/?domain=${encodeURIComponent(cleanDomain)}`} class="action-btn action-btn-primary">Scan it now</a>
+        </div>
+      )}
+
+      <div class="report-actions">
+        <a href={`/?domain=${encodeURIComponent(cleanDomain)}`} class="action-btn action-btn-secondary">Re-scan</a>
+        <button id="share-btn" class="action-btn action-btn-secondary">Copy link</button>
+      </div>
+    </div>
+  </section>
+
+  <script define:vars={{ cleanDomain }}>
+    document.getElementById('share-btn')?.addEventListener('click', async () => {
+      const url = window.location.href;
+      try {
+        await navigator.clipboard.writeText(url);
+        const btn = document.getElementById('share-btn');
+        if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy link'; }, 2000); }
+      } catch {
+        // fallback
+      }
+    });
+  </script>
+</Base>
+
+<style>
+  .report-hero { padding: var(--space-12) 0; }
+  .report-header { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); flex-wrap: wrap; }
+  .report-domain { font-size: var(--text-3xl); font-weight: 700; }
+  .report-score-badge { padding: var(--space-1) var(--space-4); border-radius: var(--radius-full); font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .report-gauge-container { text-align: center; }
+  .report-gauge-svg { width: 200px; height: 120px; overflow: visible; }
+  :global(.g-score) { font-family: var(--font-sans); font-size: 36px; font-weight: 700; }
+  :global(.g-tier) { font-family: var(--font-sans); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .report-scanned-at { margin-top: var(--space-2); font-size: var(--text-sm); color: var(--color-text-secondary); }
+
+  .report-body { padding: var(--space-8) 0 var(--space-16); }
+
+  .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  .report-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); }
+  .report-card h3 { font-size: var(--text-base); font-weight: 600; margin-bottom: var(--space-3); display: flex; align-items: center; gap: var(--space-2); }
+  .report-card-score { display: flex; align-items: center; gap: var(--space-3); }
+  .report-card-weight { margin-top: var(--space-2); font-size: var(--text-xs); color: var(--color-text-muted); }
+
+  .experimental-badge { font-size: var(--text-xs); background: var(--color-needs-work-bg); color: var(--color-needs-work); padding: 1px 6px; border-radius: var(--radius-full); font-weight: 500; }
+
+  :global(.score-bar-bg) { flex: 1; height: 8px; background: var(--color-bg); border-radius: var(--radius-full); overflow: hidden; }
+  :global(.score-bar-fill) { height: 100%; border-radius: var(--radius-full); }
+  :global(.score-value) { font-weight: 600; font-size: var(--text-sm); min-width: 28px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  .report-empty { text-align: center; padding: var(--space-16) 0; }
+  .report-empty p { font-size: var(--text-lg); color: var(--color-text-secondary); margin-bottom: var(--space-6); }
+
+  .report-actions { display: flex; justify-content: center; gap: var(--space-3); margin-top: var(--space-8); }
+  :global(.action-btn) { padding: var(--space-3) var(--space-6); border-radius: var(--radius-md); font-size: var(--text-sm); font-weight: 600; font-family: var(--font-sans); cursor: pointer; text-decoration: none; border: none; transition: background 0.15s; }
+  :global(.action-btn-primary) { background: var(--color-primary); color: white; }
+  :global(.action-btn-primary:hover) { background: var(--color-primary-hover); text-decoration: none; }
+  :global(.action-btn-secondary) { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
+  :global(.action-btn-secondary:hover) { background: var(--color-bg); }
+
+  @media (max-width: 640px) {
+    .report-grid { grid-template-columns: 1fr; }
+    .report-domain { font-size: var(--text-2xl); }
+    .report-actions { flex-direction: column; }
+    .report-actions :global(.action-btn) { text-align: center; }
+  }
+</style>

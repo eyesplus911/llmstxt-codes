@@ -1,0 +1,152 @@
+---
+import Base from '../../layouts/Base.astro';
+export const prerender = true;
+---
+<Base title="Sitemaps and AI Discovery" description="Learn how sitemap.xml helps AI crawlers discover your content. Best practices for XML sitemaps in the age of AI.">
+  <article class="learn-page">
+    <div class="container content">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a> / <a href="/learn/sitemap">Learn</a> / <span>sitemap.xml</span>
+      </nav>
+
+      <h1>Sitemaps and AI Discovery</h1>
+      <p class="lead">
+        <strong>sitemap.xml</strong> is the oldest file in the AI readiness toolkit — and still one
+        of the most important. It tells every crawler, including AI bots, exactly which pages
+        exist on your site.
+      </p>
+
+      <section>
+        <h2>Why Sitemaps Still Matter for AI</h2>
+        <p>
+          AI crawlers use sitemaps the same way search engines do: to discover pages they might
+          miss by following links alone. A complete sitemap ensures AI models have a full picture
+          of your content, not just the pages linked from your homepage.
+        </p>
+        <ul>
+          <li><strong>Complete discovery:</strong> Deep pages in documentation, blog archives, and API references are often orphaned from navigation. Sitemaps ensure they're found.</li>
+          <li><strong>Priority signals:</strong> The <code>priority</code> and <code>lastmod</code> fields help crawlers focus on your most important and recently updated pages.</li>
+          <li><strong>Efficiency:</strong> Instead of crawling every link, bots can fetch your sitemap once and know exactly what exists.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>The Format</h2>
+        <p>Place a file at <code>/sitemap.xml</code> on your domain root (or reference it from robots.txt):</p>
+        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt;
+  &lt;url&gt;
+    &lt;loc&gt;https://example.com/&lt;/loc&gt;
+    &lt;lastmod&gt;2024-12-01&lt;/lastmod&gt;
+    &lt;priority&gt;1.0&lt;/priority&gt;
+  &lt;/url&gt;
+  &lt;url&gt;
+    &lt;loc&gt;https://example.com/docs/getting-started&lt;/loc&gt;
+    &lt;lastmod&gt;2024-11-15&lt;/lastmod&gt;
+    &lt;priority&gt;0.8&lt;/priority&gt;
+  &lt;/url&gt;
+&lt;/urlset&gt;</code></pre>
+
+        <h3>Sitemap index (for large sites)</h3>
+        <p>Sites with many pages can use a sitemap index that references multiple sitemap files:</p>
+        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt;
+  &lt;sitemap&gt;
+    &lt;loc&gt;https://example.com/sitemap-pages.xml&lt;/loc&gt;
+  &lt;/sitemap&gt;
+  &lt;sitemap&gt;
+    &lt;loc&gt;https://example.com/sitemap-blog.xml&lt;/loc&gt;
+  &lt;/sitemap&gt;
+&lt;/sitemapindex&gt;</code></pre>
+      </section>
+
+      <section>
+        <h2>Best Practices</h2>
+        <ul>
+          <li>Keep sitemaps under 50MB / 50,000 URLs. Use a sitemap index for larger sites.</li>
+          <li>Include a <code>lastmod</code> date — it helps AI crawlers prioritize recent content.</li>
+          <li>Reference your sitemap in robots.txt: <code>Sitemap: https://example.com/sitemap.xml</code></li>
+          <li>Auto-generate sitemaps with your framework (Astro, Next.js, WordPress all have plugins).</li>
+          <li>Only include canonical URLs — no duplicates, no redirects, no error pages.</li>
+          <li>Update your sitemap when content changes — stale sitemaps are worse than no sitemap.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Framework Integration</h2>
+        <p>Most modern frameworks can auto-generate sitemaps:</p>
+        <table>
+          <thead>
+            <tr><th>Framework</th><th>Solution</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Astro</td><td><code>@astrojs/sitemap</code> integration</td></tr>
+            <tr><td>Next.js</td><td>Built-in <code>app/sitemap.ts</code> (App Router) or <code>next-sitemap</code></td></tr>
+            <tr><td>WordPress</td><td>Built-in since WP 5.5, or use Yoast SEO</td></tr>
+            <tr><td>Shopify</td><td>Auto-generated at <code>/sitemap.xml</code></td></tr>
+            <tr><td>Static sites</td><td>Generate during build with any sitemap generator</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>How It Relates to AI Readiness</h2>
+        <p>
+          A sitemap is the foundation. It ensures AI crawlers can <em>find</em> your content.
+          Then <a href="/learn/robots-txt">robots.txt</a> controls <em>access</em>,
+          <a href="/learn/llms-txt">llms.txt</a> provides <em>context</em>,
+          and <a href="/learn/ai-txt">ai.txt</a> sets <em>policy</em>.
+        </p>
+        <p>
+          Missing a sitemap costs you 15 points in our AI readiness score. It's the
+          easiest file to add and one of the most impactful.
+        </p>
+      </section>
+
+      <div class="cta-box">
+        <h3>Check your sitemap</h3>
+        <p>Verify your sitemap.xml is valid and discoverable.</p>
+        <a href="/" class="action-btn action-btn-primary">Scan your domain</a>
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .learn-page { padding: var(--space-8) 0 var(--space-16); }
+  .content { max-width: var(--content-width); }
+  .breadcrumb { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-6); }
+  .breadcrumb a { color: var(--color-text-secondary); }
+
+  h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-4); }
+  .lead { font-size: var(--text-lg); color: var(--color-text-secondary); line-height: var(--leading-relaxed); margin-bottom: var(--space-8); }
+
+  h2 { font-size: var(--text-xl); font-weight: 600; margin-top: var(--space-10); margin-bottom: var(--space-4); }
+  h3 { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-6); margin-bottom: var(--space-3); }
+
+  section { margin-bottom: var(--space-8); }
+  ul, ol { padding-left: var(--space-6); margin-bottom: var(--space-4); }
+  li { margin-bottom: var(--space-2); line-height: var(--leading-relaxed); }
+
+  code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-bg); padding: 1px 4px; border-radius: var(--radius-sm); }
+  pre { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); overflow-x: auto; margin: var(--space-4) 0; }
+  pre code { background: none; padding: 0; font-size: var(--text-sm); line-height: 1.6; }
+
+  table { width: 100%; border-collapse: collapse; margin: var(--space-4) 0; }
+  th, td { padding: var(--space-3); text-align: left; border-bottom: 1px solid var(--color-border); }
+  th { font-weight: 600; font-size: var(--text-sm); color: var(--color-text-secondary); }
+  td { font-size: var(--text-sm); }
+
+  .cta-box {
+    margin-top: var(--space-12); padding: var(--space-8); background: var(--color-primary-light);
+    border-radius: var(--radius-lg); text-align: center;
+  }
+  .cta-box h3 { margin-top: 0; }
+  .cta-box p { color: var(--color-text-secondary); margin-bottom: var(--space-4); }
+  .cta-box :global(.action-btn) { margin: 0 var(--space-2); display: inline-block; }
+  :global(.action-btn) { padding: var(--space-3) var(--space-6); border-radius: var(--radius-md); font-size: var(--text-sm); font-weight: 600; font-family: var(--font-sans); cursor: pointer; text-decoration: none; border: none; transition: background 0.15s; }
+  :global(.action-btn-primary) { background: var(--color-primary); color: white; }
+  :global(.action-btn-primary:hover) { background: var(--color-primary-hover); text-decoration: none; }
+  :global(.action-btn-secondary) { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
+  :global(.action-btn-secondary:hover) { background: var(--color-bg); }
+</style>

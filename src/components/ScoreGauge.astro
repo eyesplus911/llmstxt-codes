@@ -1,0 +1,94 @@
+---
+/**
+ * Semi-circular score gauge with animated fill.
+ * Shows numerical score + tier name.
+ */
+interface Props {
+  score: number;
+  tier: string;
+  tierColor: string;
+  size?: number;
+  animated?: boolean;
+}
+
+const { score, tier, tierColor, size = 200, animated = true } = Astro.props;
+
+const radius = 80;
+const strokeWidth = 12;
+const circumference = Math.PI * radius; // half circle
+const offset = circumference - (score / 100) * circumference;
+---
+
+<div class="score-gauge" style={`width: ${size}px; height: ${size * 0.6}px;`}>
+  <svg
+    viewBox="0 0 200 120"
+    class="gauge-svg"
+    role="img"
+    aria-label={`AI Readiness Score: ${score} out of 100, tier ${tier}`}
+  >
+    <!-- Background arc -->
+    <path
+      d="M 20 100 A 80 80 0 0 1 180 100"
+      fill="none"
+      stroke="var(--color-border)"
+      stroke-width={strokeWidth}
+      stroke-linecap="round"
+    />
+    <!-- Score arc -->
+    <path
+      d="M 20 100 A 80 80 0 0 1 180 100"
+      fill="none"
+      stroke={tierColor}
+      stroke-width={strokeWidth}
+      stroke-linecap="round"
+      stroke-dasharray={circumference}
+      stroke-dashoffset={animated ? circumference : offset}
+      class:list={['gauge-arc', { animated }]}
+      style={`--target-offset: ${offset};`}
+    />
+    <!-- Score number -->
+    <text x="100" y="85" text-anchor="middle" class="gauge-score" fill="var(--color-text)">
+      {score}
+    </text>
+    <text x="100" y="110" text-anchor="middle" class="gauge-tier" fill={tierColor}>
+      {tier}
+    </text>
+  </svg>
+</div>
+
+<style>
+  .score-gauge {
+    display: flex;
+    justify-content: center;
+  }
+
+  .gauge-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .gauge-score {
+    font-family: var(--font-sans);
+    font-size: 36px;
+    font-weight: 700;
+  }
+
+  .gauge-tier {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .gauge-arc.animated {
+    animation: gauge-fill 1.2s ease-out 0.3s forwards;
+  }
+
+  @keyframes gauge-fill {
+    to {
+      stroke-dashoffset: var(--target-offset);
+    }
+  }
+</style>

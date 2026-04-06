@@ -1,0 +1,375 @@
+---
+import Base from '../../../layouts/Base.astro';
+export const prerender = true;
+---
+<Base title="Generate llms.txt" description="Generate an llms.txt file for your website in 3 easy steps. Tell AI models what your site is about.">
+  <div class="generator-page">
+    <div class="container content">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a> / <a href="/learn/llms-txt">llms.txt</a> / <span>Generator</span>
+      </nav>
+
+      <h1>Generate llms.txt</h1>
+      <p class="lead">Create a structured llms.txt file for your website in 3 steps.</p>
+
+      <div class="wizard" id="wizard">
+        <!-- Step indicators -->
+        <div class="steps-bar" role="tablist" aria-label="Wizard steps">
+          <button class="step-indicator active" data-step="1" role="tab" aria-selected="true" aria-controls="step-1">
+            <span class="step-num">1</span> Site Info
+          </button>
+          <button class="step-indicator" data-step="2" role="tab" aria-selected="false" aria-controls="step-2">
+            <span class="step-num">2</span> Sections
+          </button>
+          <button class="step-indicator" data-step="3" role="tab" aria-selected="false" aria-controls="step-3">
+            <span class="step-num">3</span> Export
+          </button>
+        </div>
+
+        <!-- Step 1: Site Info -->
+        <div class="step-panel active" id="step-1" role="tabpanel">
+          <h2>Basic Information</h2>
+          <div class="field">
+            <label for="site-name">Site Name <span class="required">*</span></label>
+            <input type="text" id="site-name" placeholder="My Awesome Project" required />
+          </div>
+          <div class="field">
+            <label for="site-desc">Description</label>
+            <textarea id="site-desc" rows="2" placeholder="A brief description of what your site does."></textarea>
+          </div>
+          <div class="field">
+            <label for="site-url">Base URL</label>
+            <input type="url" id="site-url" placeholder="https://example.com" />
+          </div>
+          <div class="nav-buttons">
+            <span></span>
+            <button class="action-btn action-btn-primary" id="next-1">Next →</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Sections & Links -->
+        <div class="step-panel" id="step-2" role="tabpanel">
+          <h2>Add Sections & Links</h2>
+          <p class="hint">Organize your important pages into sections. Add at least one section with links.</p>
+
+          <div id="sections-container">
+            <div class="section-block" data-section="0">
+              <div class="field">
+                <label>Section Name</label>
+                <input type="text" class="section-name" placeholder="Docs" value="Docs" />
+              </div>
+              <div class="links-list">
+                <div class="link-row">
+                  <input type="text" class="link-title" placeholder="Link title" />
+                  <input type="url" class="link-url" placeholder="https://..." />
+                  <input type="text" class="link-desc" placeholder="Description (optional)" />
+                  <button class="remove-link" aria-label="Remove link">×</button>
+                </div>
+              </div>
+              <button class="add-link-btn">+ Add link</button>
+            </div>
+          </div>
+
+          <button class="add-section-btn" id="add-section">+ Add section</button>
+
+          <div class="nav-buttons">
+            <button class="action-btn action-btn-secondary" id="prev-2">← Back</button>
+            <button class="action-btn action-btn-primary" id="next-2">Next →</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Export -->
+        <div class="step-panel" id="step-3" role="tabpanel">
+          <h2>Your llms.txt</h2>
+          <p class="hint">Copy this file and save it at <code>/llms.txt</code> on your domain root.</p>
+
+          <div class="output-box">
+            <pre><code id="output"></code></pre>
+            <button class="copy-btn" id="copy-btn" aria-label="Copy to clipboard">Copy</button>
+          </div>
+
+          <div class="deploy-section">
+            <h3>Deploy snippets</h3>
+            <div class="deploy-tabs" role="tablist">
+              <button class="deploy-tab active" data-deploy="static" role="tab">Static</button>
+              <button class="deploy-tab" data-deploy="nextjs" role="tab">Next.js</button>
+              <button class="deploy-tab" data-deploy="astro" role="tab">Astro</button>
+              <button class="deploy-tab" data-deploy="wordpress" role="tab">WordPress</button>
+            </div>
+            <div class="deploy-content">
+              <pre><code id="deploy-code"></code></pre>
+            </div>
+          </div>
+
+          <div class="nav-buttons">
+            <button class="action-btn action-btn-secondary" id="prev-3">← Back</button>
+            <a href="/" class="action-btn action-btn-primary">Scan your site</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .generator-page { padding: var(--space-8) 0 var(--space-16); }
+  .content { max-width: 680px; }
+  .breadcrumb { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-6); }
+  .breadcrumb a { color: var(--color-text-secondary); }
+  h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-2); }
+  .lead { color: var(--color-text-secondary); margin-bottom: var(--space-8); }
+  h2 { font-size: var(--text-xl); font-weight: 600; margin-bottom: var(--space-4); }
+  h3 { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-6); margin-bottom: var(--space-3); }
+  .hint { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-4); }
+
+  .steps-bar { display: flex; gap: var(--space-1); margin-bottom: var(--space-8); border-bottom: 1px solid var(--color-border); }
+  .step-indicator { flex: 1; padding: var(--space-3); text-align: center; background: none; border: none; border-bottom: 2px solid transparent; font-size: var(--text-sm); font-weight: 500; color: var(--color-text-muted); cursor: pointer; font-family: var(--font-sans); transition: all 0.15s; }
+  .step-indicator.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+  .step-indicator.done { color: var(--color-text); }
+  .step-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--color-bg); font-size: 12px; font-weight: 600; margin-right: 4px; }
+  .step-indicator.active .step-num { background: var(--color-primary); color: white; }
+  .step-indicator.done .step-num { background: var(--color-tier-ai-ready); color: white; }
+
+  .step-panel { display: none; }
+  .step-panel.active { display: block; }
+
+  .field { margin-bottom: var(--space-4); }
+  .field label { display: block; font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-1); }
+  .required { color: #ef4444; }
+  .field input, .field textarea { width: 100%; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: var(--text-base); font-family: var(--font-sans); background: var(--color-surface); color: var(--color-text); }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15); }
+
+  .section-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-4); }
+  .links-list { margin: var(--space-3) 0; }
+  .link-row { display: grid; grid-template-columns: 1fr 1.5fr 1fr auto; gap: var(--space-2); margin-bottom: var(--space-2); }
+  .link-row input { padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: var(--text-sm); font-family: var(--font-sans); background: white; color: var(--color-text); }
+  .link-row input:focus { outline: none; border-color: var(--color-primary); }
+  .remove-link { width: 28px; height: 28px; border: none; background: none; color: var(--color-text-muted); cursor: pointer; font-size: 18px; border-radius: var(--radius-sm); align-self: center; }
+  .remove-link:hover { background: #fef2f2; color: #ef4444; }
+  .add-link-btn, .add-section-btn { background: none; border: 1px dashed var(--color-border); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3); font-size: var(--text-sm); color: var(--color-text-muted); cursor: pointer; font-family: var(--font-sans); }
+  .add-link-btn:hover, .add-section-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+  .add-section-btn { display: block; width: 100%; margin: var(--space-4) 0; }
+
+  .nav-buttons { display: flex; justify-content: space-between; margin-top: var(--space-8); }
+
+  .output-box { position: relative; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); margin: var(--space-4) 0; }
+  .output-box pre { margin: 0; overflow-x: auto; }
+  .output-box code { font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.6; white-space: pre; }
+  .copy-btn { position: absolute; top: var(--space-2); right: var(--space-2); padding: var(--space-1) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: white; font-size: var(--text-xs); cursor: pointer; font-family: var(--font-sans); }
+  .copy-btn:hover { background: var(--color-bg); }
+
+  .deploy-tabs { display: flex; gap: var(--space-1); margin-top: var(--space-3); }
+  .deploy-tab { padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-bottom: none; border-radius: var(--radius-sm) var(--radius-sm) 0 0; background: var(--color-bg); font-size: var(--text-sm); cursor: pointer; font-family: var(--font-sans); color: var(--color-text-muted); }
+  .deploy-tab.active { background: var(--color-surface); color: var(--color-text); border-bottom: 1px solid var(--color-surface); position: relative; z-index: 1; }
+  .deploy-content { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md); padding: var(--space-4); margin-top: -1px; }
+  .deploy-content pre { margin: 0; }
+  .deploy-content code { font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.6; white-space: pre; }
+
+  :global(.action-btn) { padding: var(--space-3) var(--space-6); border-radius: var(--radius-md); font-size: var(--text-sm); font-weight: 600; font-family: var(--font-sans); cursor: pointer; text-decoration: none; border: none; transition: background 0.15s; display: inline-block; }
+  :global(.action-btn-primary) { background: var(--color-primary); color: white; }
+  :global(.action-btn-primary:hover) { background: var(--color-primary-hover); }
+  :global(.action-btn-secondary) { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
+  :global(.action-btn-secondary:hover) { background: var(--color-bg); }
+
+  @media (max-width: 640px) {
+    .link-row { grid-template-columns: 1fr 1fr; }
+    .link-row .link-desc { grid-column: 1 / -1; }
+  }
+</style>
+
+<script>
+  const wizard = document.getElementById('wizard')!;
+  let currentStep = 1;
+
+  function goToStep(step: number) {
+    currentStep = step;
+    wizard.querySelectorAll('.step-panel').forEach((p, i) => {
+      p.classList.toggle('active', i + 1 === step);
+    });
+    wizard.querySelectorAll('.step-indicator').forEach((ind, i) => {
+      ind.classList.toggle('active', i + 1 === step);
+      ind.classList.toggle('done', i + 1 < step);
+      ind.setAttribute('aria-selected', String(i + 1 === step));
+    });
+    if (step === 3) generateOutput();
+  }
+
+  // Navigation
+  document.getElementById('next-1')?.addEventListener('click', () => goToStep(2));
+  document.getElementById('next-2')?.addEventListener('click', () => goToStep(3));
+  document.getElementById('prev-2')?.addEventListener('click', () => goToStep(1));
+  document.getElementById('prev-3')?.addEventListener('click', () => goToStep(2));
+
+  // Step indicators
+  wizard.querySelectorAll('.step-indicator').forEach(ind => {
+    ind.addEventListener('click', () => {
+      const step = parseInt((ind as HTMLElement).dataset.step || '1');
+      goToStep(step);
+    });
+  });
+
+  // Add section
+  let sectionCount = 1;
+  document.getElementById('add-section')?.addEventListener('click', () => {
+    const container = document.getElementById('sections-container')!;
+    const div = document.createElement('div');
+    div.className = 'section-block';
+    div.dataset.section = String(sectionCount++);
+    div.innerHTML = `
+      <div class="field">
+        <label>Section Name</label>
+        <input type="text" class="section-name" placeholder="Blog" />
+      </div>
+      <div class="links-list">
+        <div class="link-row">
+          <input type="text" class="link-title" placeholder="Link title" />
+          <input type="url" class="link-url" placeholder="https://..." />
+          <input type="text" class="link-desc" placeholder="Description (optional)" />
+          <button class="remove-link" aria-label="Remove link">×</button>
+        </div>
+      </div>
+      <button class="add-link-btn">+ Add link</button>
+    `;
+    container.appendChild(div);
+    attachSectionListeners(div);
+  });
+
+  function attachSectionListeners(block: Element) {
+    block.querySelector('.add-link-btn')?.addEventListener('click', () => {
+      const list = block.querySelector('.links-list')!;
+      const row = document.createElement('div');
+      row.className = 'link-row';
+      row.innerHTML = `
+        <input type="text" class="link-title" placeholder="Link title" />
+        <input type="url" class="link-url" placeholder="https://..." />
+        <input type="text" class="link-desc" placeholder="Description (optional)" />
+        <button class="remove-link" aria-label="Remove link">×</button>
+      `;
+      list.appendChild(row);
+      row.querySelector('.remove-link')?.addEventListener('click', () => row.remove());
+    });
+    block.querySelectorAll('.remove-link').forEach(btn => {
+      btn.addEventListener('click', () => (btn as HTMLElement).closest('.link-row')?.remove());
+    });
+  }
+
+  // Init listeners on first section
+  document.querySelectorAll('.section-block').forEach(attachSectionListeners);
+
+  // Generate output
+  function generateOutput() {
+    const name = (document.getElementById('site-name') as HTMLInputElement).value || 'My Site';
+    const desc = (document.getElementById('site-desc') as HTMLTextAreaElement).value;
+    const lines: string[] = [`# ${name}`];
+    if (desc) lines.push('', `> ${desc}`);
+
+    document.querySelectorAll('.section-block').forEach(block => {
+      const sectionName = (block.querySelector('.section-name') as HTMLInputElement).value;
+      if (!sectionName) return;
+      lines.push('', `## ${sectionName}`, '');
+      block.querySelectorAll('.link-row').forEach(row => {
+        const title = (row.querySelector('.link-title') as HTMLInputElement).value;
+        const url = (row.querySelector('.link-url') as HTMLInputElement).value;
+        const linkDesc = (row.querySelector('.link-desc') as HTMLInputElement).value;
+        if (!title && !url) return;
+        let line = `- [${title || 'Untitled'}](${url || '#'})`;
+        if (linkDesc) line += `: ${linkDesc}`;
+        lines.push(line);
+      });
+    });
+
+    const output = lines.join('\n');
+    document.getElementById('output')!.textContent = output;
+    updateDeploySnippet('static', output);
+  }
+
+  // Copy
+  document.getElementById('copy-btn')?.addEventListener('click', () => {
+    const text = document.getElementById('output')!.textContent || '';
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copy-btn')!;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+  });
+
+  // Deploy snippets
+  const deploySnippets: Record<string, (content: string) => string> = {
+    static: () => `# Save the generated content as llms.txt in your site root:
+# public/llms.txt  (or your static output folder)
+# It will be served at https://yourdomain.com/llms.txt`,
+
+    nextjs: () => `// app/llms.txt/route.ts
+import { NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
+
+export async function GET() {
+  const content = fs.readFileSync(
+    path.join(process.cwd(), 'public', 'llms.txt'),
+    'utf-8'
+  );
+  return new NextResponse(content, {
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+  });
+}`,
+
+    astro: () => `---
+// src/pages/llms.txt.ts
+import type { APIRoute } from 'astro';
+import fs from 'node:fs';
+
+export const GET: APIRoute = () => {
+  const content = fs.readFileSync('public/llms.txt', 'utf-8');
+  return new Response(content, {
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+  });
+};
+---`,
+
+    wordpress: () => `// Add to your theme's functions.php:
+add_action('init', function() {
+    add_rewrite_rule(
+        '^llms\\.txt$',
+        'index.php?llms_txt=1',
+        'top'
+    );
+});
+
+add_filter('query_vars', function($vars) {
+    $vars[] = 'llms_txt';
+    return $vars;
+});
+
+add_action('template_redirect', function() {
+    if (get_query_var('llms_txt')) {
+        header('Content-Type: text/plain; charset=utf-8');
+        readfile(get_template_directory() . '/llms.txt');
+        exit;
+    }
+});`,
+  };
+
+  function updateDeploySnippet(tab: string, _content: string) {
+    const code = deploySnippets[tab]?.(_content) || '';
+    document.getElementById('deploy-code')!.textContent = code;
+  }
+
+  document.querySelectorAll('.deploy-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.deploy-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const output = document.getElementById('output')!.textContent || '';
+      updateDeploySnippet((tab as HTMLElement).dataset.deploy || 'static', output);
+    });
+  });
+
+  // Pre-fill from ?domain= query param
+  const urlDomain = new URLSearchParams(window.location.search).get('domain');
+  if (urlDomain) {
+    const siteUrl = document.getElementById('site-url') as HTMLInputElement;
+    if (siteUrl) siteUrl.value = `https://${urlDomain}`;
+    const siteName = document.getElementById('site-name') as HTMLInputElement;
+    if (siteName && !siteName.value) siteName.placeholder = urlDomain;
+  }
+</script>

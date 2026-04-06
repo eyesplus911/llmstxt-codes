@@ -1,0 +1,277 @@
+---
+import Base from '../../layouts/Base.astro';
+export const prerender = true;
+---
+<Base title="API Docs" description="Free REST API for AI readiness scanning. Check any domain's llms.txt, robots.txt, ai.txt, and sitemap scores programmatically.">
+  <div class="docs-page">
+    <div class="container content">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a> / <span>API Docs</span>
+      </nav>
+
+      <h1>API Reference</h1>
+      <p class="lead">Free REST API to check any domain's AI readiness. No auth, no sign-up. CORS enabled.</p>
+
+      <div class="base-url">
+        <code>https://llmstxt.codes/api/v1</code>
+      </div>
+
+      <!-- Scan endpoint -->
+      <section class="endpoint" id="scan">
+        <h2>
+          <span class="method get">GET</span>
+          <code>/api/v1/scan?domain=example.com</code>
+        </h2>
+        <p>All-in-one endpoint. Fetches robots.txt, llms.txt, ai.txt, and sitemap.xml, then returns the AI Readiness Score with breakdown.</p>
+
+        <h3>Query Parameters</h3>
+        <table class="params-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>domain</code></td><td>string</td><td>Yes</td><td>Domain to scan (e.g. <code>stripe.com</code>)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Example</h3>
+        <div class="code-block">
+          <pre><code>curl "https://llmstxt.codes/api/v1/scan?domain=stripe.com" | jq .</code></pre>
+        </div>
+
+        <h3>Response</h3>
+        <div class="code-block">
+          <pre><code>{`{
+  "domain": "stripe.com",
+  "score": 72,
+  "tier": "getting-there",
+  "subScores": {
+    "llmsTxt": 80,
+    "robotsTxt": 55,
+    "sitemap": 90,
+    "aiTxt": 0,
+    "meta": 0,
+    "headers": 0
+  },
+  "improvements": [
+    {
+      "action": "Create ai.txt (experimental)",
+      "points": 11,
+      "type": "ai-txt",
+      "link": "/tools/generator/ai-txt?domain=stripe.com"
+    }
+  ],
+  "scoreVersion": 2,
+  "fetchedAt": "2026-04-06T12:00:00.000Z"
+}`}</code></pre>
+        </div>
+      </section>
+
+      <!-- Score endpoint -->
+      <section class="endpoint" id="score">
+        <h2>
+          <span class="method get">GET</span>
+          <code>/api/v1/score/:domain</code>
+        </h2>
+        <p>Retrieve a previously saved score from the database. Faster than <code>/scan</code> but only works for domains that have been scanned.</p>
+
+        <h3>Example</h3>
+        <div class="code-block">
+          <pre><code>curl "https://llmstxt.codes/api/v1/score/stripe.com" | jq .</code></pre>
+        </div>
+      </section>
+
+      <!-- Badge endpoint -->
+      <section class="endpoint" id="badge">
+        <h2>
+          <span class="method get">GET</span>
+          <code>/api/v1/badge/:domain</code>
+        </h2>
+        <p>Returns an SVG badge showing the AI Readiness Score. Use it in your README, docs, or website.</p>
+
+        <h3>Example</h3>
+        <div class="code-block">
+          <pre><code>&lt;!-- HTML --&gt;
+&lt;a href="https://llmstxt.codes/?domain=stripe.com"&gt;
+  &lt;img src="https://llmstxt.codes/api/v1/badge/stripe.com" alt="AI Readiness Score" /&gt;
+&lt;/a&gt;
+
+&lt;!-- Markdown --&gt;
+[![AI Readiness](https://llmstxt.codes/api/v1/badge/stripe.com)](https://llmstxt.codes/?domain=stripe.com)</code></pre>
+        </div>
+
+        <h3>Preview</h3>
+        <div class="badge-preview">
+          <img src="/api/v1/badge/stripe.com" alt="AI Readiness Score badge preview" loading="lazy" />
+        </div>
+      </section>
+
+      <!-- Fetch endpoint -->
+      <section class="endpoint" id="fetch">
+        <h2>
+          <span class="method get">GET</span>
+          <code>/api/v1/fetch?domain=example.com</code>
+        </h2>
+        <p>Raw file fetcher. Returns the contents of robots.txt, llms.txt, ai.txt, and sitemap.xml without scoring. Used internally by the scanner.</p>
+
+        <h3>Query Parameters</h3>
+        <table class="params-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>domain</code></td><td>string</td><td>Yes</td><td>Domain to fetch files from</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Rate limits -->
+      <section class="endpoint" id="limits">
+        <h2>Rate Limits</h2>
+        <table class="params-table">
+          <thead><tr><th>Endpoint</th><th>Limit</th><th>Window</th></tr></thead>
+          <tbody>
+            <tr><td><code>/api/v1/fetch</code></td><td>30 requests</td><td>Per IP per minute</td></tr>
+            <tr><td><code>/api/v1/scan</code></td><td>No limit (cached)</td><td>5 min cache</td></tr>
+            <tr><td><code>/api/v1/badge</code></td><td>No limit (cached)</td><td>1 hour cache</td></tr>
+          </tbody>
+        </table>
+        <p class="hint">When rate limited, the API returns <code>429 Too Many Requests</code> with a JSON error body.</p>
+      </section>
+
+      <!-- Error codes -->
+      <section class="endpoint" id="errors">
+        <h2>Error Codes</h2>
+        <table class="params-table">
+          <thead><tr><th>Code</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>DOMAIN_INVALID</code></td><td>Domain format invalid or blocked (IPs, localhost, internal)</td></tr>
+            <tr><td><code>DOMAIN_UNREACHABLE</code></td><td>Could not connect to the domain</td></tr>
+            <tr><td><code>FETCH_TIMEOUT</code></td><td>Request timed out after 3 seconds</td></tr>
+            <tr><td><code>RATE_LIMITED</code></td><td>Too many requests — wait and retry</td></tr>
+            <tr><td><code>FILE_TOO_LARGE</code></td><td>File exceeds 500KB size limit</td></tr>
+            <tr><td><code>INTERNAL_ERROR</code></td><td>Unexpected server error</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .docs-page { padding: var(--space-8) 0 var(--space-16); }
+  .content { max-width: 760px; }
+  .breadcrumb { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-6); }
+  .breadcrumb a { color: var(--color-text-secondary); }
+  h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-2); }
+  .lead { color: var(--color-text-secondary); margin-bottom: var(--space-8); font-size: var(--text-lg); }
+
+  .base-url {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    margin-bottom: var(--space-8);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+  }
+
+  .endpoint {
+    margin-bottom: var(--space-10);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .endpoint:last-child { border-bottom: none; }
+
+  .endpoint h2 {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    margin-bottom: var(--space-3);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .endpoint h2 code {
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    font-weight: 500;
+  }
+
+  .endpoint h3 {
+    font-size: var(--text-base);
+    font-weight: 600;
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-2);
+  }
+
+  .method {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .method.get { background: #dbeafe; color: #1e40af; }
+
+  .params-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-4);
+  }
+  .params-table th {
+    text-align: left;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 2px solid var(--color-border);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+  .params-table td {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .params-table code {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    background: var(--color-bg);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  .code-block {
+    background: #1e293b;
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    overflow-x: auto;
+    margin-bottom: var(--space-4);
+  }
+  .code-block pre { margin: 0; }
+  .code-block code {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: #e2e8f0;
+    line-height: 1.6;
+    white-space: pre;
+  }
+
+  .badge-preview {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    text-align: center;
+  }
+
+  .hint {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-2);
+  }
+
+  @media (max-width: 640px) {
+    .params-table { font-size: var(--text-xs); }
+    .endpoint h2 { font-size: var(--text-lg); }
+    .endpoint h2 code { font-size: var(--text-sm); }
+  }
+</style>

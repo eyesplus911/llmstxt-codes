@@ -1,0 +1,175 @@
+---
+import Base from '../../layouts/Base.astro';
+export const prerender = true;
+---
+<Base title="robots.txt and AI Crawlers" description="Learn how robots.txt controls AI bot access. Understand AI-specific User-Agent rules, common patterns, and how to configure crawler permissions.">
+  <article class="learn-page">
+    <div class="container content">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a> / <a href="/learn/robots-txt">Learn</a> / <span>robots.txt</span>
+      </nav>
+
+      <h1>robots.txt and AI Crawlers</h1>
+      <p class="lead">
+        <strong>robots.txt</strong> has been the standard for controlling web crawlers since 1994.
+        With the rise of AI, it's more important than ever — it's your primary tool for
+        controlling which AI bots can access your content.
+      </p>
+
+      <section>
+        <h2>How robots.txt Works</h2>
+        <p>
+          Place a file at <code>/robots.txt</code> on your domain root. It contains rules that tell
+          crawlers which paths they're allowed or disallowed from accessing.
+        </p>
+        <pre><code>User-agent: *
+Allow: /
+
+User-agent: GPTBot
+Disallow: /private/
+
+Sitemap: https://example.com/sitemap.xml</code></pre>
+
+        <h3>Key concepts</h3>
+        <ul>
+          <li><strong>User-agent:</strong> Which bot the following rules apply to. <code>*</code> means all bots.</li>
+          <li><strong>Allow:</strong> Explicitly permit access to a path.</li>
+          <li><strong>Disallow:</strong> Block access to a path. <code>Disallow: /</code> blocks everything.</li>
+          <li><strong>Sitemap:</strong> Tell crawlers where your sitemap is.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Known AI Crawlers</h2>
+        <p>These are the User-Agent strings used by major AI companies:</p>
+        <table>
+          <thead>
+            <tr><th>Bot</th><th>Company</th><th>Purpose</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>GPTBot</code></td><td>OpenAI</td><td>Training + browsing</td></tr>
+            <tr><td><code>ChatGPT-User</code></td><td>OpenAI</td><td>Live browsing in ChatGPT</td></tr>
+            <tr><td><code>OAI-SearchBot</code></td><td>OpenAI</td><td>Search features</td></tr>
+            <tr><td><code>Claude-Web</code></td><td>Anthropic</td><td>Web access</td></tr>
+            <tr><td><code>anthropic-ai</code></td><td>Anthropic</td><td>Training</td></tr>
+            <tr><td><code>Google-Extended</code></td><td>Google</td><td>AI training (not Search)</td></tr>
+            <tr><td><code>Bytespider</code></td><td>ByteDance</td><td>Training</td></tr>
+            <tr><td><code>CCBot</code></td><td>Common Crawl</td><td>Open dataset</td></tr>
+            <tr><td><code>PerplexityBot</code></td><td>Perplexity</td><td>AI search</td></tr>
+            <tr><td><code>cohere-ai</code></td><td>Cohere</td><td>Training</td></tr>
+            <tr><td><code>meta-externalagent</code></td><td>Meta</td><td>AI features</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Common Patterns</h2>
+        <h3>Allow all AI crawlers (AI-friendly)</h3>
+        <pre><code>User-agent: *
+Allow: /</code></pre>
+
+        <h3>Block all AI, allow search engines</h3>
+        <pre><code>User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /</code></pre>
+
+        <h3>Selective access (block training, allow browsing)</h3>
+        <pre><code>User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Allow: /</code></pre>
+      </section>
+
+      <section>
+        <h2>Best Practices</h2>
+        <ul>
+          <li>Review your robots.txt quarterly — new AI bots appear regularly.</li>
+          <li>Be explicit: block specific bots by name rather than relying on <code>*</code> alone.</li>
+          <li>Remember that robots.txt is <em>advisory</em> — well-behaved bots respect it, but it's not enforceable.</li>
+          <li>Include a <code>Sitemap:</code> directive to help crawlers find content you <em>do</em> want indexed.</li>
+          <li>Don't block paths that are already public (like docs) unless you have a specific reason.</li>
+          <li>Test with our scanner to verify your rules work as intended.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>robots.txt vs. Other AI Files</h2>
+        <p>
+          robots.txt controls <em>access</em>. It says "you may or may not crawl." But it doesn't
+          tell AI what your site is about (<a href="/learn/llms-txt">llms.txt</a>) or set usage policies
+          (<a href="/learn/ai-txt">ai.txt</a>). A complete AI strategy uses all three.
+        </p>
+      </section>
+
+      <div class="cta-box">
+        <h3>Check your robots.txt</h3>
+        <p>See which AI bots your robots.txt allows or blocks.</p>
+        <a href="/" class="action-btn action-btn-primary">Scan your domain</a>
+        <a href="/tools/generator/robots-txt" class="action-btn action-btn-secondary">Generate robots.txt</a>
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .learn-page { padding: var(--space-8) 0 var(--space-16); }
+  .content { max-width: var(--content-width); }
+  .breadcrumb { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-6); }
+  .breadcrumb a { color: var(--color-text-secondary); }
+
+  h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-4); }
+  .lead { font-size: var(--text-lg); color: var(--color-text-secondary); line-height: var(--leading-relaxed); margin-bottom: var(--space-8); }
+
+  h2 { font-size: var(--text-xl); font-weight: 600; margin-top: var(--space-10); margin-bottom: var(--space-4); }
+  h3 { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-6); margin-bottom: var(--space-3); }
+
+  section { margin-bottom: var(--space-8); }
+  ul, ol { padding-left: var(--space-6); margin-bottom: var(--space-4); }
+  li { margin-bottom: var(--space-2); line-height: var(--leading-relaxed); }
+
+  code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-bg); padding: 1px 4px; border-radius: var(--radius-sm); }
+  pre { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); overflow-x: auto; margin: var(--space-4) 0; }
+  pre code { background: none; padding: 0; font-size: var(--text-sm); line-height: 1.6; }
+
+  table { width: 100%; border-collapse: collapse; margin: var(--space-4) 0; }
+  th, td { padding: var(--space-3); text-align: left; border-bottom: 1px solid var(--color-border); }
+  th { font-weight: 600; font-size: var(--text-sm); color: var(--color-text-secondary); }
+  td { font-size: var(--text-sm); }
+
+  .cta-box {
+    margin-top: var(--space-12); padding: var(--space-8); background: var(--color-primary-light);
+    border-radius: var(--radius-lg); text-align: center;
+  }
+  .cta-box h3 { margin-top: 0; }
+  .cta-box p { color: var(--color-text-secondary); margin-bottom: var(--space-4); }
+  .cta-box :global(.action-btn) { margin: 0 var(--space-2); display: inline-block; }
+  :global(.action-btn) { padding: var(--space-3) var(--space-6); border-radius: var(--radius-md); font-size: var(--text-sm); font-weight: 600; font-family: var(--font-sans); cursor: pointer; text-decoration: none; border: none; transition: background 0.15s; }
+  :global(.action-btn-primary) { background: var(--color-primary); color: white; }
+  :global(.action-btn-primary:hover) { background: var(--color-primary-hover); text-decoration: none; }
+  :global(.action-btn-secondary) { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
+  :global(.action-btn-secondary:hover) { background: var(--color-bg); }
+</style>

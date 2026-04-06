@@ -1,0 +1,136 @@
+---
+import Base from '../../layouts/Base.astro';
+export const prerender = true;
+---
+<Base title="What is llms.txt?" description="Learn about llms.txt — the new standard for telling AI models about your website. Spec explainer, best practices, and how to create one.">
+  <article class="learn-page">
+    <div class="container content">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a> / <a href="/learn/llms-txt">Learn</a> / <span>llms.txt</span>
+      </nav>
+
+      <h1>What is llms.txt?</h1>
+      <p class="lead">
+        <strong>llms.txt</strong> is a proposed standard (created by Jeremy Howard, Sept 2024) that gives AI language models
+        structured information about your website. Think of it as a README for AI — it tells models what your site does,
+        what's important, and where to find key content.
+      </p>
+
+      <section>
+        <h2>Why does it matter?</h2>
+        <ul>
+          <li><strong>AI models are already reading your site.</strong> ChatGPT, Claude, Perplexity, and others browse the web. Without llms.txt, they guess what your site is about.</li>
+          <li><strong>Control the narrative.</strong> llms.txt lets you tell AI exactly what you want it to know — your tagline, key pages, documentation structure.</li>
+          <li><strong>Better AI search results.</strong> Sites with llms.txt may get more accurate representation in AI-powered search engines.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>The Format</h2>
+        <p>llms.txt is a simple Markdown-like text file placed at <code>/llms.txt</code> on your domain root.</p>
+        <pre><code># Your Site Name
+
+> A brief description of what your site does.
+
+## Docs
+
+- [Getting Started](https://example.com/docs/getting-started): Quick start guide
+- [API Reference](https://example.com/docs/api): Full API documentation
+
+## Blog
+
+- [Latest Release](https://example.com/blog/v2): What's new in v2</code></pre>
+
+        <h3>Structure rules</h3>
+        <ol>
+          <li><strong>Title (required):</strong> First line must be <code># Your Site Name</code></li>
+          <li><strong>Description (recommended):</strong> A blockquote or paragraph after the title</li>
+          <li><strong>Sections (recommended):</strong> Use <code>## Section Name</code> headings to organize links</li>
+          <li><strong>Links (recommended):</strong> Markdown links with descriptions: <code>[Title](URL): Description</code></li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Best Practices</h2>
+        <ul>
+          <li>Keep it concise — under 50KB. AI models have context limits.</li>
+          <li>Lead with your most important pages (docs, pricing, getting started).</li>
+          <li>Use descriptive link text, not "click here" or raw URLs.</li>
+          <li>Serve as <code>text/plain</code> or <code>text/markdown</code> content type.</li>
+          <li>Update when you ship major changes to your site structure.</li>
+          <li>Consider also creating <code>llms-full.txt</code> for comprehensive documentation.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Who's using it?</h2>
+        <p>
+          Major sites and frameworks are adopting llms.txt including Anthropic (docs.anthropic.com),
+          Cloudflare, Stripe, and many open source projects. The spec is gaining traction as
+          AI-powered search becomes mainstream.
+        </p>
+      </section>
+
+      <section>
+        <h2>How It Relates to Other Files</h2>
+        <table>
+          <thead>
+            <tr><th>File</th><th>Purpose</th><th>Audience</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>robots.txt</strong></td><td>Control which bots can crawl</td><td>All crawlers</td></tr>
+            <tr><td><strong>llms.txt</strong></td><td>Tell AI what your site is about</td><td>AI language models</td></tr>
+            <tr><td><strong>ai.txt</strong></td><td>AI usage policy & permissions</td><td>AI companies</td></tr>
+            <tr><td><strong>sitemap.xml</strong></td><td>List all pages for indexing</td><td>Search engines</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <div class="cta-box">
+        <h3>Check your site</h3>
+        <p>See if you have an llms.txt and how it scores.</p>
+        <a href="/" class="action-btn action-btn-primary">Scan your domain</a>
+        <a href="/tools/generator/llms-txt" class="action-btn action-btn-secondary">Generate llms.txt</a>
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .learn-page { padding: var(--space-8) 0 var(--space-16); }
+  .content { max-width: var(--content-width); }
+  .breadcrumb { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-6); }
+  .breadcrumb a { color: var(--color-text-secondary); }
+
+  h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-4); }
+  .lead { font-size: var(--text-lg); color: var(--color-text-secondary); line-height: var(--leading-relaxed); margin-bottom: var(--space-8); }
+
+  h2 { font-size: var(--text-xl); font-weight: 600; margin-top: var(--space-10); margin-bottom: var(--space-4); }
+  h3 { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-6); margin-bottom: var(--space-3); }
+
+  section { margin-bottom: var(--space-8); }
+  ul, ol { padding-left: var(--space-6); margin-bottom: var(--space-4); }
+  li { margin-bottom: var(--space-2); line-height: var(--leading-relaxed); }
+
+  code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-bg); padding: 1px 4px; border-radius: var(--radius-sm); }
+  pre { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); overflow-x: auto; margin: var(--space-4) 0; }
+  pre code { background: none; padding: 0; font-size: var(--text-sm); line-height: 1.6; }
+
+  table { width: 100%; border-collapse: collapse; margin: var(--space-4) 0; }
+  th, td { padding: var(--space-3); text-align: left; border-bottom: 1px solid var(--color-border); }
+  th { font-weight: 600; font-size: var(--text-sm); color: var(--color-text-secondary); }
+  td { font-size: var(--text-sm); }
+
+  .cta-box {
+    margin-top: var(--space-12); padding: var(--space-8); background: var(--color-primary-light);
+    border-radius: var(--radius-lg); text-align: center;
+  }
+  .cta-box h3 { margin-top: 0; }
+  .cta-box p { color: var(--color-text-secondary); margin-bottom: var(--space-4); }
+  .cta-box :global(.action-btn) { margin: 0 var(--space-2); display: inline-block; }
+  :global(.action-btn) { padding: var(--space-3) var(--space-6); border-radius: var(--radius-md); font-size: var(--text-sm); font-weight: 600; font-family: var(--font-sans); cursor: pointer; text-decoration: none; border: none; transition: background 0.15s; }
+  :global(.action-btn-primary) { background: var(--color-primary); color: white; }
+  :global(.action-btn-primary:hover) { background: var(--color-primary-hover); text-decoration: none; }
+  :global(.action-btn-secondary) { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
+  :global(.action-btn-secondary:hover) { background: var(--color-bg); }
+</style>
