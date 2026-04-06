@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=320" />
+  <title>AI Readiness Check</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="popup">
+    <header class="header">
+      <span class="logo">◈</span>
+      <span class="title">AI Readiness</span>
+      <a href="https://llmstxt.codes" target="_blank" class="site-link" title="Open llmstxt.codes">↗</a>
+    </header>
+
+    <div id="loading" class="loading" style="display: none;">
+      <div class="spinner"></div>
+      <p>Scanning…</p>
+    </div>
+
+    <div id="error" class="error" style="display: none;">
+      <p id="error-msg"></p>
+      <button id="retry-btn" class="btn btn-primary">Retry</button>
+    </div>
+
+    <div id="prompt" class="prompt">
+      <p>Check this site's AI readiness</p>
+      <div class="domain-display" id="domain-display"></div>
+      <button id="scan-btn" class="btn btn-primary">Scan Now</button>
+    </div>
+
+    <div id="results" class="results" style="display: none;">
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120" width="100" height="100">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="8" />
+          <circle id="score-circle" cx="60" cy="60" r="50" fill="none" stroke="#22c55e" stroke-width="8"
+            stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314"
+            transform="rotate(-90 60 60)" />
+          <text x="60" y="56" text-anchor="middle" class="score-num" id="score-num">0</text>
+          <text x="60" y="72" text-anchor="middle" class="score-label" id="score-label">—</text>
+        </svg>
+      </div>
+
+      <div class="sub-scores" id="sub-scores"></div>
+
+      <div class="improvements" id="improvements" style="display: none;">
+        <h3>Quick wins</h3>
+        <div id="improvements-list"></div>
+      </div>
+
+      <div class="actions">
+        <a id="full-report" href="#" target="_blank" class="btn btn-secondary">Full Report ↗</a>
+        <button id="rescan-btn" class="btn btn-outline">Re-scan</button>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <a href="https://llmstxt.codes" target="_blank">llmstxt.codes</a> — free & open source
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
