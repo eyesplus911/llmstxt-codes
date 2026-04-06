@@ -1,0 +1,22 @@
+# llmstxt.codes
+
+> AI Readiness Scanner — check if your website is ready for AI crawlers and language models.
+
+## Tools
+
+- [Scanner](https://llmstxt.codes/): Scan any domain for AI readiness
+- [Playground](https://llmstxt.codes/tools/playground): Validate llms.txt files in real-time
+- [llms.txt Generator](https://llmstxt.codes/tools/generator/llms-txt): Generate an llms.txt file
+- [robots.txt Generator](https://llmstxt.codes/tools/generator/robots-txt): Configure AI crawler access
+- [ai.txt Generator](https://llmstxt.codes/tools/generator/ai-txt): Declare AI usage policies
+
+## Learn
+
+- [What is llms.txt?](https://llmstxt.codes/learn/llms-txt): The AI README standard for websites
+- [robots.txt and AI](https://llmstxt.codes/learn/robots-txt): Control AI crawler access
+- [What is ai.txt?](https://llmstxt.codes/learn/ai-txt): AI usage policy declarations
+- [Sitemaps and AI](https://llmstxt.codes/learn/sitemap): Help AI crawlers discover your content
+
+## About
+
+- [About](https://llmstxt.codes/about): How scoring works, what we check, and the API
