@@ -4,8 +4,8 @@ pages_build_output_dir = "./dist"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "llmstxt-codes-db"
-database_id = "placeholder-replace-with-real-id"
+database_name = "llmstxt-codes-d1-db"
+database_id = "60bb1040-4546-462d-afc7-0c1a41b9b672"
 
 [[r2_buckets]]
 binding = "REPORTS"
