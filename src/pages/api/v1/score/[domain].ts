@@ -1,14 +1,14 @@
 export const prerender = false;
 
+import { env } from 'cloudflare:workers';
 import { validateDomain } from '../../../../lib/domain';
 import { errorResponse } from '../../../../lib/errors';
 import { getTier, TIER_CONFIG } from '../../../../lib/scoring';
 
 // GET /api/v1/score/{domain} — thin read-only API (from D1 cache)
-export async function GET({ params, request, locals }: {
+export async function GET({ params, request }: {
   params: { domain: string };
   request: Request;
-  locals: App.Locals;
 }) {
   const domainParam = params.domain;
   if (!domainParam) {
@@ -23,7 +23,7 @@ export async function GET({ params, request, locals }: {
   const domain = validation.domain;
 
   try {
-    const db = locals.runtime.env.DB;
+    const db = (env as unknown as Env).DB;
 
     // Get most recent scan for this domain
     const row = await db.prepare(

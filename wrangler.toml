@@ -10,3 +10,7 @@ database_id = "60bb1040-4546-462d-afc7-0c1a41b9b672"
 [[r2_buckets]]
 binding = "REPORTS"
 bucket_name = "llmstxt-codes-reports"
+
+[[kv_namespaces]]
+binding = "KV_SESSION"
+id = "beb55f6d79644bc8b8b7dbe156068d2a"

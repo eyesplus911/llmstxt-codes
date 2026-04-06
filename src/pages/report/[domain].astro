@@ -33,7 +33,8 @@ let scanData: {
 } | null = null;
 
 try {
-  const db = Astro.locals.runtime.env.DB;
+  const { env } = await import('cloudflare:workers');
+  const db = (env as unknown as Env).DB;
   scanData = await db.prepare(
     'SELECT score, llms_txt_score, robots_txt_score, ai_txt_score, sitemap_score, meta_score, headers_score, score_version, scanned_at, results_r2_key FROM scans WHERE domain = ? ORDER BY scanned_at DESC LIMIT 1'
   ).bind(cleanDomain).first();

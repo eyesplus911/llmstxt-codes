@@ -1,10 +1,11 @@
 export const prerender = false;
 
+import { env } from 'cloudflare:workers';
 import { validateDomain } from '../../../lib/domain';
 import { errorResponse } from '../../../lib/errors';
 
 // POST /api/v1/save — save scan results to D1 + R2
-export async function POST({ request, locals }: { request: Request; locals: App.Locals }) {
+export async function POST({ request }: { request: Request }) {
   const body = await request.json().catch(() => null);
   if (!body || !body.domain || body.score === undefined) {
     return errorResponse('DOMAIN_INVALID', 'Missing required fields: domain, score');
@@ -19,8 +20,8 @@ export async function POST({ request, locals }: { request: Request; locals: App.
   const id = `${domain}-${new Date().toISOString().slice(0, 10)}`;
 
   try {
-    const db = locals.runtime.env.DB;
-    const r2 = locals.runtime.env.REPORTS;
+    const db = (env as unknown as Env).DB;
+    const r2 = (env as unknown as Env).REPORTS;
 
     // Store full results in R2
     const r2Key = `reports/${domain}/${id}.json`;
