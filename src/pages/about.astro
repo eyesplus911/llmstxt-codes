@@ -2,98 +2,159 @@
 import Base from '../layouts/Base.astro';
 export const prerender = true;
 ---
-<Base title="About — llms.txt.codes" description="llms.txt.codes helps websites become AI-ready. Free scanner, generators, and learn hub for llms.txt, robots.txt, ai.txt, and sitemap.xml.">
+<Base title="About — llmstxt.codes" description="llmstxt.codes is an AI Readiness Scanner & Web Standards Hub. We scan, score, and guide improvements to your site's AI readiness configuration.">
   <article class="about-page">
     <div class="container content">
-      <h1>About llms.txt.codes</h1>
+      <h1>About llmstxt.codes</h1>
       <p class="lead">
-        A free tool to help your website speak to AI. Scan your domain, generate the right
-        files, and learn what each standard does.
+        We believe the web should be as readable by AI as it is by humans.
+        llmstxt.codes helps website owners prepare for the AI-powered web by
+        scanning, scoring, and guiding improvements to their AI readiness configuration.
       </p>
 
+      <!-- What we check -->
       <section>
         <h2>What we check</h2>
-        <p>Our scanner evaluates four files that control how AI interacts with your site:</p>
+        <p>Our scanner evaluates four files that shape how AI systems interact with your site:</p>
         <div class="check-grid">
           <div class="check-card">
             <h3>llms.txt</h3>
-            <p>Structured information for AI language models — your site's README for AI.</p>
-            <a href="/learn/llms-txt">Learn more →</a>
+            <p>Structured information for AI language models — your site's README for AI. Includes a title, description, organized sections, and links to key resources.</p>
+            <a href="/learn/llms-txt">Learn more &rarr;</a>
           </div>
           <div class="check-card">
             <h3>robots.txt</h3>
-            <p>Controls which AI crawlers can access your content and which paths are off-limits.</p>
-            <a href="/learn/robots-txt">Learn more →</a>
+            <p>Controls which AI crawlers can access your content and which paths are off-limits. We specifically check for AI-bot directives and sitemap references.</p>
+            <a href="/learn/robots-txt">Learn more &rarr;</a>
           </div>
           <div class="check-card">
             <h3>ai.txt</h3>
-            <p>Declares your AI usage policies — what AI companies can and can't do with your content.</p>
-            <a href="/learn/ai-txt">Learn more →</a>
+            <p>Declares your AI usage policies — what AI companies can and can't do with your content. An emerging standard for machine-readable AI governance.</p>
+            <a href="/learn/ai-txt">Learn more &rarr;</a>
           </div>
           <div class="check-card">
             <h3>sitemap.xml</h3>
-            <p>Helps AI crawlers discover all your pages, not just the ones linked from your homepage.</p>
-            <a href="/learn/sitemap">Learn more →</a>
+            <p>Helps AI crawlers discover all your pages, not just the ones linked from your homepage. We validate structure, URL count, and robots.txt cross-referencing.</p>
+            <a href="/learn/sitemap">Learn more &rarr;</a>
           </div>
         </div>
       </section>
 
+      <!-- How scoring works -->
       <section>
         <h2>How scoring works</h2>
         <p>
-          We compute a weighted AI Readiness Score from 0-100 based on six dimensions:
+          We compute a weighted <strong>AI Readiness Score</strong> from 0&ndash;100 based on four active dimensions, with two more planned:
         </p>
         <table>
           <thead>
             <tr><th>Dimension</th><th>Weight</th><th>What we check</th></tr>
           </thead>
           <tbody>
-            <tr><td>llms.txt</td><td>30%</td><td>Exists, has title, description, sections, links, proper content type, reasonable size</td></tr>
-            <tr><td>robots.txt</td><td>25%</td><td>Exists, addresses AI bots explicitly, allows reasonable access, has sitemap directive</td></tr>
-            <tr><td>sitemap.xml</td><td>15%</td><td>Exists, valid XML, contains URLs</td></tr>
-            <tr><td>ai.txt</td><td>10%</td><td>Exists, has parseable policies (experimental)</td></tr>
-            <tr><td>Meta tags</td><td>10%</td><td>AI-relevant meta tags and headers</td></tr>
-            <tr><td>HTTP headers</td><td>10%</td><td>Proper content types, caching, accessibility</td></tr>
+            <tr><td>llms.txt</td><td><strong>44%</strong></td><td>Exists, has title, description, sections, links, proper content type, reasonable size</td></tr>
+            <tr><td>robots.txt</td><td><strong>28%</strong></td><td>Exists, addresses AI bots explicitly, allows reasonable access, has sitemap directive</td></tr>
+            <tr><td>sitemap.xml</td><td><strong>17%</strong></td><td>Exists, valid XML, contains URLs, referenced in robots.txt</td></tr>
+            <tr><td>ai.txt</td><td><strong>11%</strong></td><td>Exists, has parseable policies (experimental)</td></tr>
+            <tr class="planned"><td>Meta tags</td><td>0%</td><td>AI-relevant meta tags — planned for v3</td></tr>
+            <tr class="planned"><td>HTTP headers</td><td>0%</td><td>Content types, AI-specific headers — planned for v3</td></tr>
           </tbody>
         </table>
+        <p class="hint">
+          Scoring is version 2. Weights reflect the current importance and adoption of each standard. Meta tags and HTTP headers are planned for v3.
+        </p>
+      </section>
 
-        <h3>Tiers</h3>
+      <!-- Tiers -->
+      <section>
+        <h2>Tiers</h2>
         <div class="tiers">
-          <div class="tier"><span class="tier-badge ai-ready">AI-Ready</span> 90-100 — Comprehensive AI configuration</div>
-          <div class="tier"><span class="tier-badge getting-there">Getting There</span> 70-89 — Good foundation, room to improve</div>
-          <div class="tier"><span class="tier-badge needs-work">Needs Work</span> 50-69 — Basic setup, significant gaps</div>
-          <div class="tier"><span class="tier-badge not-configured">Not Configured</span> 0-49 — Little to no AI configuration</div>
+          <div class="tier">
+            <span class="tier-badge ai-ready">AI-Ready</span>
+            <div>
+              <strong>90&ndash;100</strong> &mdash; Comprehensive AI configuration.
+              <span class="tier-guidance">Your site is fully prepared for AI. Keep files up to date as standards evolve.</span>
+            </div>
+          </div>
+          <div class="tier">
+            <span class="tier-badge getting-there">Getting There</span>
+            <div>
+              <strong>70&ndash;89</strong> &mdash; Good foundation, room to improve.
+              <span class="tier-guidance">Focus on filling gaps in your llms.txt structure and adding explicit AI-bot directives to robots.txt.</span>
+            </div>
+          </div>
+          <div class="tier">
+            <span class="tier-badge needs-work">Needs Work</span>
+            <div>
+              <strong>50&ndash;69</strong> &mdash; Basic setup, significant gaps.
+              <span class="tier-guidance">Start with llms.txt (44% of your score), then ensure robots.txt mentions AI crawlers.</span>
+            </div>
+          </div>
+          <div class="tier">
+            <span class="tier-badge not-configured">Not Configured</span>
+            <div>
+              <strong>0&ndash;49</strong> &mdash; Little to no AI configuration.
+              <span class="tier-guidance">Use our generators to create llms.txt and robots.txt — those two files alone can push you past 70.</span>
+            </div>
+          </div>
         </div>
       </section>
 
+      <!-- Our methodology -->
       <section>
-        <h2>Open & free</h2>
-        <p>
-          llms.txt.codes is free to use. All scanning happens client-side — we fetch your
-          files through a lightweight proxy but all parsing, scoring, and validation runs
-          in your browser. No data is sent to third parties.
-        </p>
-        <p>
-          Scan results are cached in our database so report pages load instantly. You can
-          rescan at any time to get fresh results.
-        </p>
+        <h2>Our methodology</h2>
+        <p>Every scan follows the same deterministic pipeline:</p>
+        <ol class="methodology-list">
+          <li><strong>Fetch</strong> — Each file is retrieved via a lightweight proxy so we can check sites that block direct browser requests.</li>
+          <li><strong>Parse</strong> — Content is parsed and validated against the relevant spec (Markdown structure for llms.txt, directive syntax for robots.txt, XML schema for sitemap.xml, policy format for ai.txt).</li>
+          <li><strong>Score</strong> — Points are awarded for presence, completeness, and quality. Specific checks include file existence, correct content type, size limits, structural elements (titles, sections, links), and AI-specific directives.</li>
+          <li><strong>Weight &amp; aggregate</strong> — Per-file scores are combined using the v2 weights above to produce a single 0&ndash;100 score.</li>
+          <li><strong>Cache</strong> — Scan results are cached for 5 minutes. Badge endpoints cache for 1 hour. You can rescan any time to get fresh results.</li>
+        </ol>
       </section>
 
+      <!-- Privacy & transparency -->
       <section>
-        <h2>API</h2>
-        <p>
-          We offer a thin read-only API for checking cached scores:
-        </p>
-        <pre><code set:html={`GET /api/v1/score/&lbrace;domain&rbrace;
+        <h2>Privacy &amp; transparency</h2>
+        <ul class="privacy-list">
+          <li><strong>No tracking cookies</strong> — we use GA4 for aggregate analytics only.</li>
+          <li><strong>No data sold</strong> to third parties, ever.</li>
+          <li><strong>File contents are not stored</strong> — files are fetched through a proxy for scoring but are not retained permanently.</li>
+          <li><strong>Only scores are persisted</strong> — scan results (scores, tier, timestamp) are cached in our database so report pages load instantly.</li>
+          <li><strong>Open-source scoring</strong> — all scoring logic is public on GitHub so you can verify exactly how your score is calculated.</li>
+        </ul>
+      </section>
 
-&lbrace;
-  "domain": "example.com",
-  "score": 82,
-  "tier": "getting-there",
-  "scanned_at": "2024-12-01T10:30:00Z",
-  "report_url": "/report/example.com"
-&rbrace;`} /></pre>
-        <p class="hint">Results are cached for up to 1 hour. Returns 404 if the domain hasn't been scanned.</p>
+      <!-- Roadmap -->
+      <section>
+        <h2>Roadmap</h2>
+        <ul class="roadmap-list">
+          <li><strong>v3 scoring</strong> — Meta tags and HTTP headers will be added as scoring dimensions.</li>
+          <li><strong>Browser extension</strong> — Already built and available in the <a href="https://chromewebstore.google.com" target="_blank" rel="noopener">Chrome Web Store</a>. See your AI readiness score on any site.</li>
+          <li><strong>Bulk scanning API</strong> — Scan hundreds of domains in a single request.</li>
+          <li><strong>Historical score tracking</strong> — Track how your score changes over time.</li>
+          <li><strong>Industry leaderboards</strong> — AI readiness rankings by industry and category.</li>
+        </ul>
+      </section>
+
+      <!-- Built with -->
+      <section>
+        <h2>Built with</h2>
+        <div class="built-with">
+          <span class="tech-tag">Astro 6</span>
+          <span class="tech-tag">Cloudflare Workers</span>
+          <span class="tech-tag">D1</span>
+          <span class="tech-tag">R2</span>
+          <span class="tech-tag">TypeScript</span>
+          <span class="tech-tag">No CSS frameworks</span>
+          <span class="tech-tag">Open source</span>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="cta-section">
+        <h2>Ready to check your site?</h2>
+        <p>Run a free scan and get your AI Readiness Score in seconds.</p>
+        <a href="/" class="cta-button">Scan your site &rarr;</a>
       </section>
     </div>
   </article>
@@ -103,7 +164,7 @@ export const prerender = true;
   .about-page { padding: var(--space-8) 0 var(--space-16); }
   .content { max-width: var(--content-width); }
   h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-4); }
-  .lead { font-size: var(--text-lg); color: var(--color-text-secondary); line-height: var(--leading-relaxed); margin-bottom: var(--space-8); }
+  .lead { font-size: var(--text-lg); color: var(--color-text-secondary); line-height: var(--leading-relaxed); margin-bottom: var(--space-8); max-width: 640px; }
   h2 { font-size: var(--text-xl); font-weight: 600; margin-top: var(--space-10); margin-bottom: var(--space-4); }
   h3 { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-6); margin-bottom: var(--space-3); }
   .hint { font-size: var(--text-sm); color: var(--color-text-muted); }
@@ -111,6 +172,7 @@ export const prerender = true;
   section { margin-bottom: var(--space-8); }
   p { line-height: var(--leading-relaxed); margin-bottom: var(--space-3); }
 
+  /* Check grid */
   .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-top: var(--space-4); }
   .check-card { padding: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
   .check-card h3 { margin-top: 0; font-family: var(--font-mono); }
@@ -118,24 +180,54 @@ export const prerender = true;
   .check-card a { font-size: var(--text-sm); color: var(--color-primary); text-decoration: none; font-weight: 500; }
   .check-card a:hover { text-decoration: underline; }
 
+  /* Scoring table */
   table { width: 100%; border-collapse: collapse; margin: var(--space-4) 0; }
   th, td { padding: var(--space-3); text-align: left; border-bottom: 1px solid var(--color-border); }
   th { font-weight: 600; font-size: var(--text-sm); color: var(--color-text-secondary); }
   td { font-size: var(--text-sm); }
+  tr.planned td { color: var(--color-text-muted); font-style: italic; }
 
-  .tiers { margin-top: var(--space-4); }
-  .tier { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; font-size: var(--text-sm); }
-  .tier-badge { display: inline-block; padding: 2px 10px; border-radius: var(--radius-full); font-weight: 600; font-size: var(--text-xs); min-width: 100px; text-align: center; }
+  /* Tiers */
+  .tiers { margin-top: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
+  .tier { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-2) 0; font-size: var(--text-sm); }
+  .tier-badge { display: inline-block; padding: 2px 10px; border-radius: var(--radius-full); font-weight: 600; font-size: var(--text-xs); min-width: 100px; text-align: center; flex-shrink: 0; margin-top: 2px; }
+  .tier-guidance { display: block; color: var(--color-text-muted); margin-top: 2px; }
   .ai-ready { background: var(--color-tier-ai-ready-bg); color: var(--color-tier-ai-ready); }
   .getting-there { background: var(--color-tier-getting-there-bg); color: var(--color-tier-getting-there); }
   .needs-work { background: var(--color-tier-needs-work-bg); color: var(--color-tier-needs-work); }
   .not-configured { background: var(--color-tier-not-configured-bg); color: var(--color-tier-not-configured); }
 
+  /* Methodology */
+  .methodology-list { padding-left: var(--space-5); margin: var(--space-4) 0; }
+  .methodology-list li { font-size: var(--text-sm); line-height: var(--leading-relaxed); margin-bottom: var(--space-3); }
+
+  /* Privacy */
+  .privacy-list { padding-left: var(--space-5); margin: var(--space-4) 0; }
+  .privacy-list li { font-size: var(--text-sm); line-height: var(--leading-relaxed); margin-bottom: var(--space-2); }
+
+  /* Roadmap */
+  .roadmap-list { padding-left: var(--space-5); margin: var(--space-4) 0; }
+  .roadmap-list li { font-size: var(--text-sm); line-height: var(--leading-relaxed); margin-bottom: var(--space-2); }
+  .roadmap-list a { color: var(--color-primary); text-decoration: none; font-weight: 500; }
+  .roadmap-list a:hover { text-decoration: underline; }
+
+  /* Built with */
+  .built-with { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+  .tech-tag { display: inline-block; padding: 4px 12px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 500; color: var(--color-text-secondary); }
+
+  /* CTA */
+  .cta-section { text-align: center; padding: var(--space-8) 0; margin-top: var(--space-10); border-top: 1px solid var(--color-border); }
+  .cta-section h2 { margin-top: 0; }
+  .cta-button { display: inline-block; padding: var(--space-3) var(--space-6); background: var(--color-primary); color: #fff; border-radius: var(--radius-md); text-decoration: none; font-weight: 600; font-size: var(--text-sm); transition: opacity 0.15s ease; }
+  .cta-button:hover { opacity: 0.9; }
+
+  /* Code (kept for any inline usage) */
   code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-bg); padding: 1px 4px; border-radius: var(--radius-sm); }
   pre { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); overflow-x: auto; margin: var(--space-4) 0; }
   pre code { background: none; padding: 0; font-size: var(--text-sm); line-height: 1.6; }
 
   @media (max-width: 640px) {
     .check-grid { grid-template-columns: 1fr; }
+    .tier { flex-direction: column; gap: var(--space-1); }
   }
 </style>

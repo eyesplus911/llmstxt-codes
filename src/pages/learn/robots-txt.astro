@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 export const prerender = true;
 ---
-<Base title="robots.txt and AI Crawlers" description="Learn how robots.txt controls AI bot access. Understand AI-specific User-Agent rules, common patterns, and how to configure crawler permissions.">
+<Base title="robots.txt and AI Crawlers — Complete Guide (2025)" description="The definitive guide to robots.txt for AI crawlers. All known AI bot User-Agents, configuration patterns, testing guide, and best practices for 2025.">
   <article class="learn-page">
     <div class="container content">
       <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -12,12 +12,26 @@ export const prerender = true;
       <h1>robots.txt and AI Crawlers</h1>
       <p class="lead">
         <strong>robots.txt</strong> has been the standard for controlling web crawlers since 1994.
-        With the rise of AI, it's more important than ever — it's your primary tool for
-        controlling which AI bots can access your content.
+        With AI companies now sending dozens of bots to scrape the web for training data, it's your
+        primary tool for controlling who gets access to your content.
       </p>
 
-      <section>
-        <h2>How robots.txt Works</h2>
+      <nav class="toc" aria-label="Table of contents">
+        <h2 class="toc-title">On this page</h2>
+        <ul>
+          <li><a href="#how-it-works">How robots.txt works</a></li>
+          <li><a href="#ai-crawlers">All known AI crawlers (2025)</a></li>
+          <li><a href="#patterns">Configuration patterns</a></li>
+          <li><a href="#training-vs-browsing">Training vs. browsing bots</a></li>
+          <li><a href="#best-practices">Best practices</a></li>
+          <li><a href="#testing">Testing your robots.txt</a></li>
+          <li><a href="#comparison">Comparison with other files</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <section id="how-it-works">
+        <h2>How robots.txt works</h2>
         <p>
           Place a file at <code>/robots.txt</code> on your domain root. It contains rules that tell
           crawlers which paths they're allowed or disallowed from accessing.
@@ -30,104 +44,321 @@ Disallow: /private/
 
 Sitemap: https://example.com/sitemap.xml</code></pre>
 
-        <h3>Key concepts</h3>
-        <ul>
-          <li><strong>User-agent:</strong> Which bot the following rules apply to. <code>*</code> means all bots.</li>
-          <li><strong>Allow:</strong> Explicitly permit access to a path.</li>
-          <li><strong>Disallow:</strong> Block access to a path. <code>Disallow: /</code> blocks everything.</li>
-          <li><strong>Sitemap:</strong> Tell crawlers where your sitemap is.</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>Known AI Crawlers</h2>
-        <p>These are the User-Agent strings used by major AI companies:</p>
+        <h3>Key directives</h3>
         <table>
           <thead>
-            <tr><th>Bot</th><th>Company</th><th>Purpose</th></tr>
+            <tr><th>Directive</th><th>Purpose</th><th>Example</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>GPTBot</code></td><td>OpenAI</td><td>Training + browsing</td></tr>
-            <tr><td><code>ChatGPT-User</code></td><td>OpenAI</td><td>Live browsing in ChatGPT</td></tr>
-            <tr><td><code>OAI-SearchBot</code></td><td>OpenAI</td><td>Search features</td></tr>
-            <tr><td><code>Claude-Web</code></td><td>Anthropic</td><td>Web access</td></tr>
-            <tr><td><code>anthropic-ai</code></td><td>Anthropic</td><td>Training</td></tr>
-            <tr><td><code>Google-Extended</code></td><td>Google</td><td>AI training (not Search)</td></tr>
-            <tr><td><code>Bytespider</code></td><td>ByteDance</td><td>Training</td></tr>
-            <tr><td><code>CCBot</code></td><td>Common Crawl</td><td>Open dataset</td></tr>
-            <tr><td><code>PerplexityBot</code></td><td>Perplexity</td><td>AI search</td></tr>
-            <tr><td><code>cohere-ai</code></td><td>Cohere</td><td>Training</td></tr>
-            <tr><td><code>meta-externalagent</code></td><td>Meta</td><td>AI features</td></tr>
+            <tr><td><code>User-agent</code></td><td>Which bot the rules apply to. <code>*</code> = all bots.</td><td><code>User-agent: GPTBot</code></td></tr>
+            <tr><td><code>Allow</code></td><td>Explicitly permit access to a path</td><td><code>Allow: /docs/</code></td></tr>
+            <tr><td><code>Disallow</code></td><td>Block access to a path</td><td><code>Disallow: /admin/</code></td></tr>
+            <tr><td><code>Sitemap</code></td><td>Point crawlers to your sitemap</td><td><code>Sitemap: https://example.com/sitemap.xml</code></td></tr>
+            <tr><td><code>Crawl-delay</code></td><td>Seconds between requests (not all bots honor this)</td><td><code>Crawl-delay: 10</code></td></tr>
           </tbody>
         </table>
+
+        <h3>Rule precedence</h3>
+        <p>When multiple rules match, the most specific one wins:</p>
+        <ol>
+          <li>Bot-specific rules override <code>User-agent: *</code></li>
+          <li>Longer path patterns override shorter ones</li>
+          <li><code>Allow</code> overrides <code>Disallow</code> when both match with equal specificity</li>
+        </ol>
       </section>
 
-      <section>
-        <h2>Common Patterns</h2>
-        <h3>Allow all AI crawlers (AI-friendly)</h3>
+      <section id="ai-crawlers">
+        <h2>All known AI crawlers (2025)</h2>
+        <p>This is the most comprehensive list of AI User-Agent strings. Updated regularly.</p>
+
+        <h3>Training bots (scrape content for model training)</h3>
+        <table>
+          <thead>
+            <tr><th>Bot</th><th>Company</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>GPTBot</code></td><td>OpenAI</td><td>Primary training crawler</td></tr>
+            <tr><td><code>Google-Extended</code></td><td>Google</td><td>AI training only (does NOT affect Google Search indexing)</td></tr>
+            <tr><td><code>anthropic-ai</code></td><td>Anthropic</td><td>Training data collection</td></tr>
+            <tr><td><code>Bytespider</code></td><td>ByteDance</td><td>Training for TikTok AI features</td></tr>
+            <tr><td><code>CCBot</code></td><td>Common Crawl</td><td>Open dataset used by many AI labs</td></tr>
+            <tr><td><code>cohere-ai</code></td><td>Cohere</td><td>Enterprise AI training</td></tr>
+            <tr><td><code>meta-externalagent</code></td><td>Meta</td><td>Training for Llama models</td></tr>
+            <tr><td><code>Diffbot</code></td><td>Diffbot</td><td>Web data extraction and knowledge graphs</td></tr>
+            <tr><td><code>Applebot-Extended</code></td><td>Apple</td><td>Training Apple Intelligence features</td></tr>
+            <tr><td><code>FacebookBot</code></td><td>Meta</td><td>AI feature training</td></tr>
+            <tr><td><code>omgili</code></td><td>Webz.io</td><td>Data collection for AI applications</td></tr>
+            <tr><td><code>Timpibot</code></td><td>Timpi</td><td>Decentralized search/AI</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Browsing/search bots (real-time web access for AI features)</h3>
+        <table>
+          <thead>
+            <tr><th>Bot</th><th>Company</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>ChatGPT-User</code></td><td>OpenAI</td><td>Live browsing in ChatGPT conversations</td></tr>
+            <tr><td><code>OAI-SearchBot</code></td><td>OpenAI</td><td>SearchGPT and search features</td></tr>
+            <tr><td><code>Claude-Web</code></td><td>Anthropic</td><td>Live web access in Claude conversations</td></tr>
+            <tr><td><code>PerplexityBot</code></td><td>Perplexity</td><td>AI-powered search engine</td></tr>
+            <tr><td><code>YouBot</code></td><td>You.com</td><td>AI search</td></tr>
+            <tr><td><code>Amazonbot</code></td><td>Amazon</td><td>Alexa and Amazon search AI</td></tr>
+          </tbody>
+        </table>
+
+        <div class="notice info">
+          <strong>New bots appear regularly.</strong> The AI landscape changes fast. We update this list
+          when new bots are documented. <a href="/">Scan your domain</a> to see which bots your current
+          robots.txt covers.
+        </div>
+      </section>
+
+      <section id="patterns">
+        <h2>Configuration patterns</h2>
+
+        <h3>Pattern 1: AI-friendly (allow everything)</h3>
+        <p>Best for: sites that want maximum AI visibility (docs, open-source projects, content marketing).</p>
         <pre><code>User-agent: *
-Allow: /</code></pre>
-
-        <h3>Block all AI, allow search engines</h3>
-        <pre><code>User-agent: Googlebot
 Allow: /
 
-User-agent: Bingbot
-Allow: /
+Sitemap: https://example.com/sitemap.xml</code></pre>
 
+        <h3>Pattern 2: Block training, allow browsing</h3>
+        <p>Best for: sites that want to appear in AI search results but don't want content used for training.</p>
+        <pre><code># Block training bots
 User-agent: GPTBot
-Disallow: /
-
-User-agent: Claude-Web
-Disallow: /
-
-User-agent: anthropic-ai
 Disallow: /
 
 User-agent: Google-Extended
 Disallow: /
 
-User-agent: CCBot
-Disallow: /</code></pre>
+User-agent: anthropic-ai
+Disallow: /
 
-        <h3>Selective access (block training, allow browsing)</h3>
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+# Allow browsing/search bots
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+# Allow traditional search
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://example.com/sitemap.xml</code></pre>
+
+        <h3>Pattern 3: Selective access (protect premium content)</h3>
+        <p>Best for: sites with both free and premium content.</p>
+        <pre><code>User-agent: GPTBot
+Allow: /blog/
+Allow: /docs/
+Disallow: /premium/
+Disallow: /members/
+Disallow: /api/internal/
+
+User-agent: ChatGPT-User
+Allow: /blog/
+Allow: /docs/
+Disallow: /premium/
+
+Sitemap: https://example.com/sitemap.xml</code></pre>
+
+        <h3>Pattern 4: Block all AI bots</h3>
+        <p>Best for: sites that want zero AI interaction (paywalled news, proprietary content).</p>
         <pre><code>User-agent: GPTBot
 Disallow: /
 
 User-agent: ChatGPT-User
-Allow: /
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
 
 User-agent: anthropic-ai
 Disallow: /
 
 User-agent: Claude-Web
-Allow: /</code></pre>
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+# Keep traditional search
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://example.com/sitemap.xml</code></pre>
       </section>
 
-      <section>
-        <h2>Best Practices</h2>
+      <section id="training-vs-browsing">
+        <h2>Training vs. browsing: a critical distinction</h2>
+        <p>
+          Not all AI bots do the same thing. Understanding the difference is key to making the right decision:
+        </p>
+        <table>
+          <thead>
+            <tr><th></th><th>Training Bots</th><th>Browsing/Search Bots</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>What they do</strong></td><td>Scrape content to include in future model training data</td><td>Fetch pages in real-time to answer user queries</td></tr>
+            <tr><td><strong>When they run</strong></td><td>Batch crawling (periodic)</td><td>On-demand (when a user asks about your site)</td></tr>
+            <tr><td><strong>Impact of blocking</strong></td><td>Your content won't be in future model training</td><td>AI can't cite or reference your site in real-time answers</td></tr>
+            <tr><td><strong>Recommendation</strong></td><td>Block if you don't want content used for training</td><td>Consider allowing, as it drives traffic like traditional search</td></tr>
+          </tbody>
+        </table>
+        <p>
+          <strong>The nuance:</strong> Blocking GPTBot (training) but allowing ChatGPT-User (browsing) means
+          your content won't be baked into the model, but ChatGPT can still visit your site live when a user
+          asks about you. This is the most common configuration for commercial sites.
+        </p>
+      </section>
+
+      <section id="best-practices">
+        <h2>Best practices</h2>
         <ul>
-          <li>Review your robots.txt quarterly — new AI bots appear regularly.</li>
-          <li>Be explicit: block specific bots by name rather than relying on <code>*</code> alone.</li>
-          <li>Remember that robots.txt is <em>advisory</em> — well-behaved bots respect it, but it's not enforceable.</li>
-          <li>Include a <code>Sitemap:</code> directive to help crawlers find content you <em>do</em> want indexed.</li>
-          <li>Don't block paths that are already public (like docs) unless you have a specific reason.</li>
-          <li>Test with our scanner to verify your rules work as intended.</li>
+          <li><strong>Be explicit:</strong> Name specific bots rather than relying only on <code>User-agent: *</code>. AI bots may not respect wildcard rules as reliably as traditional search bots.</li>
+          <li><strong>Review quarterly:</strong> New AI bots appear every few months. Check our <a href="#ai-crawlers">crawler list</a> and update your rules.</li>
+          <li><strong>Include a Sitemap directive:</strong> Even if you block some bots, the Sitemap directive helps allowed crawlers discover your content efficiently.</li>
+          <li><strong>Remember robots.txt is advisory:</strong> Well-behaved bots respect it. Malicious bots ignore it. It's a signal, not a firewall.</li>
+          <li><strong>Don't block paths that are already public:</strong> If your docs are publicly accessible, blocking AI crawlers just means they'll get worse information about you, not no information.</li>
+          <li><strong>Pair with ai.txt:</strong> robots.txt controls access. <a href="/learn/ai-txt">ai.txt</a> communicates policy. Use both for a complete AI governance approach.</li>
+          <li><strong>Test before deploying:</strong> A misconfigured robots.txt can accidentally block legitimate search engines. Always test with multiple tools.</li>
         </ul>
       </section>
 
-      <section>
-        <h2>robots.txt vs. Other AI Files</h2>
+      <section id="testing">
+        <h2>Testing your robots.txt</h2>
+        <p>Before deploying changes, verify your configuration:</p>
+        <ol>
+          <li><strong>Scan with our tool:</strong> <a href="/">Enter your domain</a> and we'll analyze which AI bots are allowed vs blocked.</li>
+          <li><strong>Check syntax:</strong> Use <a href="https://developers.google.com/search/docs/crawling-indexing/robots/robots_txt" target="_blank" rel="noopener">Google's robots.txt tester</a> in Search Console.</li>
+          <li><strong>Verify access:</strong> <code>curl -A "GPTBot" https://yoursite.com/robots.txt</code> to see what the bot sees.</li>
+          <li><strong>Monitor:</strong> Check your server logs for AI bot User-Agents to see which bots are actually visiting.</li>
+        </ol>
+
+        <h3>Quick curl test</h3>
+        <pre><code># Check what GPTBot sees
+curl -A "GPTBot" https://yoursite.com/
+
+# Verify robots.txt is accessible
+curl https://yoursite.com/robots.txt
+
+# Check with our API
+curl "https://llmstxt.codes/api/v1/scan?domain=yoursite.com" | jq .subScores.robotsTxt</code></pre>
+      </section>
+
+      <section id="comparison">
+        <h2>robots.txt vs. other AI files</h2>
         <p>
           robots.txt controls <em>access</em>. It says "you may or may not crawl." But it doesn't
           tell AI what your site is about (<a href="/learn/llms-txt">llms.txt</a>) or set usage policies
           (<a href="/learn/ai-txt">ai.txt</a>). A complete AI strategy uses all three.
         </p>
+        <table>
+          <thead>
+            <tr><th>Question</th><th>Answer</th><th>File</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Can this bot crawl my site?</td><td>Access control</td><td><code>robots.txt</code></td></tr>
+            <tr><td>What is my site about?</td><td>Context for AI</td><td><code>llms.txt</code></td></tr>
+            <tr><td>Can AI companies use my content?</td><td>Usage policy</td><td><code>ai.txt</code></td></tr>
+            <tr><td>What pages exist on my site?</td><td>Page discovery</td><td><code>sitemap.xml</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="faq">
+        <h2>FAQ</h2>
+
+        <div class="faq-item">
+          <h3>Does blocking GPTBot also block ChatGPT?</h3>
+          <p>
+            No. GPTBot is used for training data collection. ChatGPT-User is a separate bot used
+            for live browsing. You can block one without blocking the other.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Does blocking Google-Extended affect my Google Search ranking?</h3>
+          <p>
+            No. Google-Extended only controls AI training (Gemini, Bard). Googlebot handles Search
+            indexing separately. Blocking Google-Extended has zero impact on your search rankings.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Will AI companies respect my robots.txt?</h3>
+          <p>
+            Major companies (OpenAI, Google, Anthropic, Meta) have publicly committed to respecting
+            robots.txt. Smaller or less scrupulous operators may not. robots.txt is advisory, not
+            enforceable. For legal protection, pair it with <a href="/learn/ai-txt">ai.txt</a>
+            and explicit Terms of Service.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Can I rate-limit AI bots instead of blocking them?</h3>
+          <p>
+            The <code>Crawl-delay</code> directive theoretically limits request frequency, but not
+            all AI bots honor it. For reliable rate limiting, use server-side controls (Cloudflare
+            Bot Management, nginx rate limiting, etc.).
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>My robots.txt already has rules but our scanner says I need improvement. Why?</h3>
+          <p>
+            We score based on explicit AI bot coverage. A generic <code>User-agent: * / Allow: /</code>
+            gets a lower score than explicitly naming and configuring each AI bot. The more bots you
+            explicitly address, the higher your score, because it shows intentional AI management.
+          </p>
+        </div>
       </section>
 
       <div class="cta-box">
         <h3>Check your robots.txt</h3>
-        <p>See which AI bots your robots.txt allows or blocks.</p>
+        <p>See which AI bots your robots.txt allows or blocks, and what's missing.</p>
         <a href="/" class="action-btn action-btn-primary">Scan your domain</a>
         <a href="/tools/generator/robots-txt" class="action-btn action-btn-secondary">Generate robots.txt</a>
       </div>
@@ -148,6 +379,7 @@ Allow: /</code></pre>
   h3 { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-6); margin-bottom: var(--space-3); }
 
   section { margin-bottom: var(--space-8); }
+  p { line-height: var(--leading-relaxed); margin-bottom: var(--space-3); }
   ul, ol { padding-left: var(--space-6); margin-bottom: var(--space-4); }
   li { margin-bottom: var(--space-2); line-height: var(--leading-relaxed); }
 
@@ -159,6 +391,25 @@ Allow: /</code></pre>
   th, td { padding: var(--space-3); text-align: left; border-bottom: 1px solid var(--color-border); }
   th { font-weight: 600; font-size: var(--text-sm); color: var(--color-text-secondary); }
   td { font-size: var(--text-sm); }
+
+  /* Table of contents */
+  .toc { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4) var(--space-6); margin-bottom: var(--space-8); }
+  .toc-title { font-size: var(--text-sm); font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0; margin-bottom: var(--space-2); }
+  .toc ul { columns: 2; padding-left: var(--space-4); margin: 0; }
+  .toc li { font-size: var(--text-sm); margin-bottom: var(--space-1); }
+  .toc a { color: var(--color-primary); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  .notice { border-radius: var(--radius-md); padding: var(--space-4); margin: var(--space-4) 0; font-size: var(--text-sm); }
+  .notice.info { background: #eff6ff; border: 1px solid #93c5fd; }
+  .notice a { color: var(--color-primary); }
+
+  /* FAQ */
+  .faq-item { margin-bottom: var(--space-6); padding-bottom: var(--space-6); border-bottom: 1px solid var(--color-border); }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-item h3 { margin-top: 0; }
+  .faq-item p { font-size: var(--text-sm); color: var(--color-text-secondary); }
+  .faq-item a { color: var(--color-primary); }
 
   .cta-box {
     margin-top: var(--space-12); padding: var(--space-8); background: var(--color-primary-light);
@@ -172,4 +423,8 @@ Allow: /</code></pre>
   :global(.action-btn-primary:hover) { background: var(--color-primary-hover); text-decoration: none; }
   :global(.action-btn-secondary) { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
   :global(.action-btn-secondary:hover) { background: var(--color-bg); }
+
+  @media (max-width: 640px) {
+    .toc ul { columns: 1; }
+  }
 </style>

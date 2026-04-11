@@ -1,45 +1,25 @@
 ---
 import Base from '../../layouts/Base.astro';
 export const prerender = true;
----
-<Base title="API Docs" description="Free REST API for AI readiness scanning. Check any domain's llms.txt, robots.txt, ai.txt, and sitemap scores programmatically.">
-  <div class="docs-page">
-    <div class="container content">
-      <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="/">Home</a> / <span>API Docs</span>
-      </nav>
 
-      <h1>API Reference</h1>
-      <p class="lead">Free REST API to check any domain's AI readiness. No auth, no sign-up. CORS enabled.</p>
+// Code examples with template literals/f-strings that Astro would interpret
+const scanJs = `const res = await fetch('https://llmstxt.codes/api/v1/scan?domain=stripe.com');
+const data = await res.json();
 
-      <div class="base-url">
-        <code>https://llmstxt.codes/api/v1</code>
-      </div>
+console.log(\`Score: \${data.score}/100 (\${data.tier})\`);
+console.log('Sub-scores:', data.subScores);
+data.improvements.forEach(i =&gt; console.log(\`  +\${i.points}pts: \${i.action}\`));`;
 
-      <!-- Scan endpoint -->
-      <section class="endpoint" id="scan">
-        <h2>
-          <span class="method get">GET</span>
-          <code>/api/v1/scan?domain=example.com</code>
-        </h2>
-        <p>All-in-one endpoint. Fetches robots.txt, llms.txt, ai.txt, and sitemap.xml, then returns the AI Readiness Score with breakdown.</p>
+const scanPy = `import requests
 
-        <h3>Query Parameters</h3>
-        <table class="params-table">
-          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
-          <tbody>
-            <tr><td><code>domain</code></td><td>string</td><td>Yes</td><td>Domain to scan (e.g. <code>stripe.com</code>)</td></tr>
-          </tbody>
-        </table>
+resp = requests.get('https://llmstxt.codes/api/v1/scan', params={'domain': 'stripe.com'})
+data = resp.json()
 
-        <h3>Example</h3>
-        <div class="code-block">
-          <pre><code>curl "https://llmstxt.codes/api/v1/scan?domain=stripe.com" | jq .</code></pre>
-        </div>
+print(f"Score: {data['score']}/100 ({data['tier']})")
+for imp in data['improvements']:
+    print(f"  +{imp['points']}pts: {imp['action']}")`;
 
-        <h3>Response</h3>
-        <div class="code-block">
-          <pre><code>{`{
+const scanResponse = `{
   "domain": "stripe.com",
   "score": 72,
   "tier": "getting-there",
@@ -61,41 +41,193 @@ export const prerender = true;
   ],
   "scoreVersion": 2,
   "fetchedAt": "2026-04-06T12:00:00.000Z"
-}`}</code></pre>
+}`;
+
+const scoreJs = `const res = await fetch('https://llmstxt.codes/api/v1/score/stripe.com');
+if (res.ok) {
+  const data = await res.json();
+  console.log(\`\${data.domain}: \${data.score}/100\`);
+} else {
+  console.log('Domain not yet scanned');
+}`;
+
+const scorePy = `import requests
+
+resp = requests.get('https://llmstxt.codes/api/v1/score/stripe.com')
+if resp.status_code == 200:
+    data = resp.json()
+    print(f"{data['domain']}: {data['score']}/100")
+else:
+    print('Domain not yet scanned')`;
+
+const bulkPy = `import requests
+import csv
+from datetime import date
+
+domains = ['stripe.com', 'anthropic.com', 'cloudflare.com', 'vercel.com']
+
+with open('scores.csv', 'a', newline='') as f:
+    writer = csv.writer(f)
+    for domain in domains:
+        resp = requests.get('https://llmstxt.codes/api/v1/scan', params={'domain': domain})
+        if resp.ok:
+            d = resp.json()
+            writer.writerow([date.today(), d['domain'], d['score'], d['tier']])
+            print(f"{d['domain']}: {d['score']}/100 ({d['tier']})")`;
+
+const errorResponse = `{
+  "error": true,
+  "code": "DOMAIN_INVALID",
+  "message": "Invalid domain format. Provide a bare domain like 'example.com'."
+}`;
+
+const fetchPy = `import requests
+
+resp = requests.get('https://llmstxt.codes/api/v1/fetch', params={'domain': 'anthropic.com'})
+data = resp.json()
+
+print('robots.txt:', data.get('robotsTxt', {}).get('content', '')[:200])
+print('llms.txt:', data.get('llmsTxt', {}).get('content', '')[:200])`;
+
+const saveCurl = `curl -X POST "https://llmstxt.codes/api/v1/save" \\
+  -H "Content-Type: application/json" \\
+  -d '{"domain":"example.com","score":72,"tier":"getting-there","subScores":{"llmsTxt":80,"robotsTxt":55,"sitemap":90,"aiTxt":0},"improvements":[]}'`;
+---
+<Base title="API Reference" description="Free REST API for AI readiness scanning. Check any domain's llms.txt, robots.txt, ai.txt, and sitemap scores programmatically. No auth required. Includes curl, JavaScript, and Python examples.">
+  <div class="docs-page">
+    <div class="container content">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a> / <span>API Docs</span>
+      </nav>
+
+      <h1>API Reference</h1>
+      <p class="lead">Free REST API to check any domain's AI readiness. No auth, no sign-up. CORS enabled for all origins.</p>
+
+      <div class="base-url">
+        <code>https://llmstxt.codes/api/v1</code>
+      </div>
+
+      <nav class="toc" aria-label="Table of contents">
+        <h2 class="toc-title">On this page</h2>
+        <ul>
+          <li><a href="#quick-start">Quick start</a></li>
+          <li><a href="#scan">Scan endpoint</a></li>
+          <li><a href="#score">Score endpoint</a></li>
+          <li><a href="#badge">Badge endpoint</a></li>
+          <li><a href="#fetch">Fetch endpoint</a></li>
+          <li><a href="#save">Save endpoint</a></li>
+          <li><a href="#response-schema">Response schema</a></li>
+          <li><a href="#use-cases">Use cases</a></li>
+          <li><a href="#limits">Rate limits</a></li>
+          <li><a href="#status-codes">HTTP status codes</a></li>
+          <li><a href="#errors">Error codes</a></li>
+          <li><a href="#versioning">Versioning</a></li>
+        </ul>
+      </nav>
+
+      <!-- ─── Quick Start ─── -->
+      <section class="endpoint" id="quick-start">
+        <h2>Quick start</h2>
+        <p>Make your first request in 30 seconds:</p>
+        <div class="code-block">
+          <pre><code>curl "https://llmstxt.codes/api/v1/scan?domain=stripe.com" | jq .</code></pre>
+        </div>
+        <p>That's it. No API key needed. You'll get back a JSON response with the domain's AI readiness score, breakdown by file, and actionable improvement suggestions.</p>
+      </section>
+
+      <!-- ─── Scan endpoint ─── -->
+      <section class="endpoint" id="scan">
+        <h2>
+          <span class="method get">GET</span>
+          <code>/api/v1/scan?domain=example.com</code>
+        </h2>
+        <p>All-in-one endpoint. Fetches robots.txt, llms.txt, ai.txt, and sitemap.xml, then returns the AI Readiness Score with breakdown. Results are cached for 5 minutes.</p>
+
+        <h3>Query Parameters</h3>
+        <table class="params-table">
+          <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>domain</code></td><td>string</td><td>Yes</td><td>Domain to scan (e.g. <code>stripe.com</code>). Do not include protocol or path.</td></tr>
+          </tbody>
+        </table>
+
+        <h4>curl</h4>
+        <div class="code-block">
+          <pre><code>curl "https://llmstxt.codes/api/v1/scan?domain=stripe.com" | jq .</code></pre>
+        </div>
+
+        <h4>JavaScript / Node.js</h4>
+        <div class="code-block">
+          <pre><code set:html={scanJs} /></pre>
+        </div>
+
+        <h4>Python</h4>
+        <div class="code-block">
+          <pre><code set:html={scanPy} /></pre>
+        </div>
+
+        <h3>Response</h3>
+        <div class="code-block">
+          <pre><code set:html={scanResponse} /></pre>
         </div>
       </section>
 
-      <!-- Score endpoint -->
+      <!-- ─── Score endpoint ─── -->
       <section class="endpoint" id="score">
         <h2>
           <span class="method get">GET</span>
           <code>/api/v1/score/:domain</code>
         </h2>
-        <p>Retrieve a previously saved score from the database. Faster than <code>/scan</code> but only works for domains that have been scanned.</p>
+        <p>Retrieve a previously saved score from the database. Faster than <code>/scan</code> but only works for domains that have already been scanned. Returns <code>404</code> if the domain hasn't been scanned yet.</p>
 
-        <h3>Example</h3>
+        <h4>curl</h4>
         <div class="code-block">
           <pre><code>curl "https://llmstxt.codes/api/v1/score/stripe.com" | jq .</code></pre>
         </div>
+
+        <h4>JavaScript / Node.js</h4>
+        <div class="code-block">
+          <pre><code set:html={scoreJs} /></pre>
+        </div>
+
+        <h4>Python</h4>
+        <div class="code-block">
+          <pre><code set:html={scorePy} /></pre>
+        </div>
       </section>
 
-      <!-- Badge endpoint -->
+      <!-- ─── Badge endpoint ─── -->
       <section class="endpoint" id="badge">
         <h2>
           <span class="method get">GET</span>
           <code>/api/v1/badge/:domain</code>
         </h2>
-        <p>Returns an SVG badge showing the AI Readiness Score. Use it in your README, docs, or website.</p>
+        <p>Returns an SVG badge showing the AI Readiness Score. Use it in your README, docs, or website. Cached for 1 hour.</p>
 
-        <h3>Example</h3>
+        <h3>Embedding examples</h3>
+
+        <h4>HTML</h4>
         <div class="code-block">
-          <pre><code>&lt;!-- HTML --&gt;
-&lt;a href="https://llmstxt.codes/?domain=stripe.com"&gt;
+          <pre><code>&lt;a href="https://llmstxt.codes/?domain=stripe.com"&gt;
   &lt;img src="https://llmstxt.codes/api/v1/badge/stripe.com" alt="AI Readiness Score" /&gt;
-&lt;/a&gt;
+&lt;/a&gt;</code></pre>
+        </div>
 
-&lt;!-- Markdown --&gt;
-[![AI Readiness](https://llmstxt.codes/api/v1/badge/stripe.com)](https://llmstxt.codes/?domain=stripe.com)</code></pre>
+        <h4>Markdown</h4>
+        <div class="code-block">
+          <pre><code>[![AI Readiness](https://llmstxt.codes/api/v1/badge/stripe.com)](https://llmstxt.codes/?domain=stripe.com)</code></pre>
+        </div>
+
+        <h4>reStructuredText</h4>
+        <div class="code-block">
+          <pre><code>.. image:: https://llmstxt.codes/api/v1/badge/stripe.com
+   :target: https://llmstxt.codes/?domain=stripe.com
+   :alt: AI Readiness Score</code></pre>
+        </div>
+
+        <h4>AsciiDoc</h4>
+        <div class="code-block">
+          <pre><code>image:https://llmstxt.codes/api/v1/badge/stripe.com[AI Readiness Score, link="https://llmstxt.codes/?domain=stripe.com"]</code></pre>
         </div>
 
         <h3>Preview</h3>
@@ -104,13 +236,13 @@ export const prerender = true;
         </div>
       </section>
 
-      <!-- Fetch endpoint -->
+      <!-- ─── Fetch endpoint ─── -->
       <section class="endpoint" id="fetch">
         <h2>
           <span class="method get">GET</span>
           <code>/api/v1/fetch?domain=example.com</code>
         </h2>
-        <p>Raw file fetcher. Returns the contents of robots.txt, llms.txt, ai.txt, and sitemap.xml without scoring. Used internally by the scanner.</p>
+        <p>Raw file fetcher. Returns the contents of robots.txt, llms.txt, ai.txt, and sitemap.xml without scoring. Useful for building your own analysis tools or inspecting what the scanner sees.</p>
 
         <h3>Query Parameters</h3>
         <table class="params-table">
@@ -119,36 +251,199 @@ export const prerender = true;
             <tr><td><code>domain</code></td><td>string</td><td>Yes</td><td>Domain to fetch files from</td></tr>
           </tbody>
         </table>
+
+        <h4>curl</h4>
+        <div class="code-block">
+          <pre><code>curl "https://llmstxt.codes/api/v1/fetch?domain=anthropic.com" | jq .</code></pre>
+        </div>
+
+        <h4>JavaScript / Node.js</h4>
+        <div class="code-block">
+          <pre><code>const res = await fetch('https://llmstxt.codes/api/v1/fetch?domain=anthropic.com');
+const data = await res.json();
+
+// Access raw file contents
+console.log('robots.txt:', data.robotsTxt?.content?.substring(0, 200));
+console.log('llms.txt:', data.llmsTxt?.content?.substring(0, 200));</code></pre>
+        </div>
+
+        <h4>Python</h4>
+        <div class="code-block">
+          <pre><code set:html={fetchPy} /></pre>
+        </div>
       </section>
 
-      <!-- Rate limits -->
+      <!-- ─── Save endpoint ─── -->
+      <section class="endpoint" id="save">
+        <h2>
+          <span class="method post">POST</span>
+          <code>/api/v1/save</code>
+        </h2>
+        <p>Save scan results to the database for persistent report pages. Used internally by the scanner after a scan completes. Requires a valid scan payload in the request body.</p>
+
+        <h3>Request Body</h3>
+        <table class="params-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>domain</code></td><td>string</td><td>Yes</td><td>Domain that was scanned</td></tr>
+            <tr><td><code>score</code></td><td>number</td><td>Yes</td><td>Computed AI readiness score (0-100)</td></tr>
+            <tr><td><code>tier</code></td><td>string</td><td>Yes</td><td>Score tier (ai-ready, getting-there, needs-work, not-configured)</td></tr>
+            <tr><td><code>subScores</code></td><td>object</td><td>Yes</td><td>Breakdown by file type</td></tr>
+            <tr><td><code>improvements</code></td><td>array</td><td>Yes</td><td>List of actionable improvements</td></tr>
+          </tbody>
+        </table>
+
+        <h4>curl</h4>
+        <div class="code-block">
+          <pre><code set:html={saveCurl} /></pre>
+        </div>
+      </section>
+
+      <!-- ─── Response Schema ─── -->
+      <section class="endpoint" id="response-schema">
+        <h2>Response schema (scan endpoint)</h2>
+        <table class="params-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>domain</code></td><td>string</td><td>The scanned domain</td></tr>
+            <tr><td><code>score</code></td><td>number</td><td>Overall AI readiness score (0-100)</td></tr>
+            <tr><td><code>tier</code></td><td>string</td><td>One of: <code>ai-ready</code> (90-100), <code>getting-there</code> (70-89), <code>needs-work</code> (50-69), <code>not-configured</code> (0-49)</td></tr>
+            <tr><td><code>subScores.llmsTxt</code></td><td>number</td><td>llms.txt sub-score (0-100, weight: 44%)</td></tr>
+            <tr><td><code>subScores.robotsTxt</code></td><td>number</td><td>robots.txt sub-score (0-100, weight: 28%)</td></tr>
+            <tr><td><code>subScores.sitemap</code></td><td>number</td><td>sitemap.xml sub-score (0-100, weight: 17%)</td></tr>
+            <tr><td><code>subScores.aiTxt</code></td><td>number</td><td>ai.txt sub-score (0-100, weight: 11%)</td></tr>
+            <tr><td><code>subScores.meta</code></td><td>number</td><td>Meta tags sub-score (0-100, weight: 0% — planned for v3)</td></tr>
+            <tr><td><code>subScores.headers</code></td><td>number</td><td>HTTP headers sub-score (0-100, weight: 0% — planned for v3)</td></tr>
+            <tr><td><code>improvements</code></td><td>array</td><td>List of suggested improvements, each with <code>action</code> (string), <code>points</code> (number), <code>type</code> (string), and <code>link</code> (string)</td></tr>
+            <tr><td><code>scoreVersion</code></td><td>number</td><td>Scoring algorithm version (currently 2)</td></tr>
+            <tr><td><code>fetchedAt</code></td><td>string</td><td>ISO 8601 timestamp of when files were fetched</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ─── Use Cases ─── -->
+      <section class="endpoint" id="use-cases">
+        <h2>Use cases</h2>
+
+        <h3>CI/CD integration</h3>
+        <p>Check your AI readiness score in your deploy pipeline. Fail the build if the score drops below a threshold:</p>
+        <div class="code-block">
+          <pre><code># .github/workflows/ai-readiness.yml
+name: AI Readiness Check
+on: [push]
+jobs:
+  check-score:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check AI readiness score
+        run: |
+          SCORE=$(curl -sf "https://llmstxt.codes/api/v1/scan?domain=yourdomain.com" | jq '.score')
+          echo "AI Readiness Score: $SCORE"
+          if [ "$SCORE" -lt 70 ]; then
+            echo "::error::AI readiness score ($SCORE) is below threshold (70)"
+            exit 1
+          fi</code></pre>
+        </div>
+
+        <h3>Monitoring dashboard</h3>
+        <p>Periodically check multiple domains and track scores over time:</p>
+        <div class="code-block">
+          <pre><code>#!/bin/bash
+# monitor-ai-readiness.sh — run via cron
+DOMAINS="yourdomain.com competitor1.com competitor2.com"
+DATE=$(date +%Y-%m-%d)
+
+for domain in $DOMAINS; do
+  RESULT=$(curl -sf "https://llmstxt.codes/api/v1/scan?domain=$domain")
+  SCORE=$(echo "$RESULT" | jq '.score')
+  TIER=$(echo "$RESULT" | jq -r '.tier')
+  echo "$DATE,$domain,$SCORE,$TIER" >> ai-readiness-log.csv
+done</code></pre>
+        </div>
+
+        <h3>Python bulk scanner</h3>
+        <div class="code-block">
+          <pre><code set:html={bulkPy} /></pre>
+        </div>
+      </section>
+
+      <!-- ─── Rate limits ─── -->
       <section class="endpoint" id="limits">
-        <h2>Rate Limits</h2>
+        <h2>Rate limits</h2>
         <table class="params-table">
-          <thead><tr><th>Endpoint</th><th>Limit</th><th>Window</th></tr></thead>
+          <thead><tr><th>Endpoint</th><th>Limit</th><th>Window</th><th>Notes</th></tr></thead>
           <tbody>
-            <tr><td><code>/api/v1/fetch</code></td><td>30 requests</td><td>Per IP per minute</td></tr>
-            <tr><td><code>/api/v1/scan</code></td><td>No limit (cached)</td><td>5 min cache</td></tr>
-            <tr><td><code>/api/v1/badge</code></td><td>No limit (cached)</td><td>1 hour cache</td></tr>
+            <tr><td><code>/api/v1/fetch</code></td><td>30 requests</td><td>Per IP per minute</td><td>Returns <code>429</code> when exceeded</td></tr>
+            <tr><td><code>/api/v1/scan</code></td><td>No limit</td><td>5 min cache</td><td>Cached results served instantly</td></tr>
+            <tr><td><code>/api/v1/score</code></td><td>No limit</td><td>DB read</td><td>Returns <code>404</code> if not scanned</td></tr>
+            <tr><td><code>/api/v1/badge</code></td><td>No limit</td><td>1 hour cache</td><td>SVG cached at edge</td></tr>
+            <tr><td><code>/api/v1/save</code></td><td>30 requests</td><td>Per IP per minute</td><td>Returns <code>429</code> when exceeded</td></tr>
           </tbody>
         </table>
-        <p class="hint">When rate limited, the API returns <code>429 Too Many Requests</code> with a JSON error body.</p>
+        <p class="hint">When rate limited, the API returns <code>429 Too Many Requests</code> with a JSON error body. Retry after waiting 60 seconds.</p>
+
+        <h3>CORS</h3>
+        <p>All endpoints support CORS with <code>Access-Control-Allow-Origin: *</code>. You can call the API directly from browser-side JavaScript on any domain.</p>
       </section>
 
-      <!-- Error codes -->
-      <section class="endpoint" id="errors">
-        <h2>Error Codes</h2>
+      <!-- ─── HTTP Status Codes ─── -->
+      <section class="endpoint" id="status-codes">
+        <h2>HTTP status codes</h2>
         <table class="params-table">
-          <thead><tr><th>Code</th><th>Meaning</th></tr></thead>
+          <thead><tr><th>Code</th><th>Meaning</th><th>When</th></tr></thead>
           <tbody>
-            <tr><td><code>DOMAIN_INVALID</code></td><td>Domain format invalid or blocked (IPs, localhost, internal)</td></tr>
-            <tr><td><code>DOMAIN_UNREACHABLE</code></td><td>Could not connect to the domain</td></tr>
-            <tr><td><code>FETCH_TIMEOUT</code></td><td>Request timed out after 3 seconds</td></tr>
-            <tr><td><code>RATE_LIMITED</code></td><td>Too many requests — wait and retry</td></tr>
-            <tr><td><code>FILE_TOO_LARGE</code></td><td>File exceeds 500KB size limit</td></tr>
-            <tr><td><code>INTERNAL_ERROR</code></td><td>Unexpected server error</td></tr>
+            <tr><td><code>200</code></td><td>Success</td><td>Request completed successfully</td></tr>
+            <tr><td><code>400</code></td><td>Bad Request</td><td>Missing or invalid <code>domain</code> parameter</td></tr>
+            <tr><td><code>404</code></td><td>Not Found</td><td>Domain not yet scanned (score endpoint), or invalid route</td></tr>
+            <tr><td><code>429</code></td><td>Too Many Requests</td><td>Rate limit exceeded — wait and retry</td></tr>
+            <tr><td><code>500</code></td><td>Internal Server Error</td><td>Unexpected server error — retry or report</td></tr>
           </tbody>
         </table>
+      </section>
+
+      <!-- ─── Error codes ─── -->
+      <section class="endpoint" id="errors">
+        <h2>Error codes</h2>
+        <p>Error responses include a JSON body with a <code>code</code> field for programmatic handling:</p>
+        <table class="params-table">
+          <thead><tr><th>Code</th><th>Meaning</th><th>Resolution</th></tr></thead>
+          <tbody>
+            <tr><td><code>DOMAIN_INVALID</code></td><td>Domain format invalid or blocked (IPs, localhost, internal)</td><td>Use a valid public domain without protocol or path</td></tr>
+            <tr><td><code>DOMAIN_UNREACHABLE</code></td><td>Could not connect to the domain</td><td>Verify the domain is online and accepting connections</td></tr>
+            <tr><td><code>FETCH_TIMEOUT</code></td><td>Request timed out after 3 seconds</td><td>The domain's server is slow — retry later</td></tr>
+            <tr><td><code>RATE_LIMITED</code></td><td>Too many requests</td><td>Wait 60 seconds and retry</td></tr>
+            <tr><td><code>FILE_TOO_LARGE</code></td><td>File exceeds 500KB size limit</td><td>The domain's file is too large to process</td></tr>
+            <tr><td><code>INTERNAL_ERROR</code></td><td>Unexpected server error</td><td>Retry — if persistent, report an issue on GitHub</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Error response format</h3>
+        <div class="code-block">
+          <pre><code set:html={errorResponse} /></pre>
+        </div>
+      </section>
+
+      <!-- ─── Versioning ─── -->
+      <section class="endpoint" id="versioning">
+        <h2>Versioning</h2>
+        <p>
+          The API uses URL-based versioning. The current version is <strong>v1</strong>.
+        </p>
+        <table class="params-table">
+          <thead><tr><th>Version</th><th>Scoring</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>/api/v1</code></td>
+              <td>Score version 2 — weights: llms.txt 44%, robots.txt 28%, sitemap 17%, ai.txt 11%. Meta and headers at 0% (planned for v3).</td>
+              <td>Current, stable</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="hint">
+          The <code>scoreVersion</code> field in responses indicates which scoring algorithm was used.
+          When scoring v3 ships (adding meta tags and HTTP headers), existing v1 API URLs will continue to work.
+          Breaking changes will use <code>/api/v2</code>.
+        </p>
       </section>
     </div>
   </div>
@@ -167,10 +462,18 @@ export const prerender = true;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     padding: var(--space-3) var(--space-4);
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-6);
     font-family: var(--font-mono);
     font-size: var(--text-sm);
   }
+
+  /* TOC */
+  .toc { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4) var(--space-6); margin-bottom: var(--space-10); }
+  .toc-title { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin: 0 0 var(--space-2) 0; }
+  .toc ul { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: var(--space-6); }
+  .toc li { margin-bottom: var(--space-1); break-inside: avoid; }
+  .toc a { font-size: var(--text-sm); color: var(--color-primary); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
 
   .endpoint {
     margin-bottom: var(--space-10);
@@ -202,6 +505,16 @@ export const prerender = true;
     margin-bottom: var(--space-2);
   }
 
+  .endpoint h4 {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-1);
+    color: var(--color-text-secondary);
+  }
+
+  p { line-height: var(--leading-relaxed); margin-bottom: var(--space-3); }
+
   .method {
     display: inline-block;
     padding: 2px 8px;
@@ -213,6 +526,7 @@ export const prerender = true;
     letter-spacing: 0.05em;
   }
   .method.get { background: #dbeafe; color: #1e40af; }
+  .method.post { background: #d1fae5; color: #065f46; }
 
   .params-table {
     width: 100%;
@@ -230,6 +544,7 @@ export const prerender = true;
   .params-table td {
     padding: var(--space-2) var(--space-3);
     border-bottom: 1px solid var(--color-border);
+    line-height: var(--leading-relaxed);
   }
   .params-table code {
     font-family: var(--font-mono);
@@ -273,5 +588,6 @@ export const prerender = true;
     .params-table { font-size: var(--text-xs); }
     .endpoint h2 { font-size: var(--text-lg); }
     .endpoint h2 code { font-size: var(--text-sm); }
+    .toc ul { columns: 1; }
   }
 </style>

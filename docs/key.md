@@ -1,0 +1,3 @@
+- Posthog: npx -y @posthog/wizard@latest
+- GA4: G-92Q05QMJM4
+- GTM: GTM-MHZ2FDBH

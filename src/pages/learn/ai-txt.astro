@@ -2,100 +2,451 @@
 import Base from '../../layouts/Base.astro';
 export const prerender = true;
 ---
-<Base title="What is ai.txt?" description="Learn about ai.txt — the emerging standard for declaring AI usage policies. Experimental spec, format guide, and best practices.">
+<Base title="What is ai.txt? The Complete Guide (2025)" description="The definitive guide to ai.txt — the emerging standard for declaring AI usage policies. Format spec, real examples, comparison with TDM headers, and implementation checklist.">
   <article class="learn-page">
     <div class="container content">
       <nav class="breadcrumb" aria-label="Breadcrumb">
         <a href="/">Home</a> / <a href="/learn/ai-txt">Learn</a> / <span>ai.txt</span>
       </nav>
 
-      <h1>What is ai.txt? <span class="badge experimental">Experimental</span></h1>
+      <h1>What is ai.txt? The Complete Guide <span class="badge experimental">Experimental</span></h1>
       <p class="lead">
         <strong>ai.txt</strong> is an emerging proposal for declaring your website's AI usage policies.
         While robots.txt controls <em>access</em>, ai.txt communicates <em>intent</em> — how you want
-        AI companies to use (or not use) your content.
+        AI companies to use (or not use) your content. It's the difference between locking your door
+        and posting terms of the lease.
       </p>
 
       <div class="notice">
-        <strong>Note:</strong> ai.txt is not yet a widely adopted standard. It's an experimental
+        <strong>Status:</strong> ai.txt is not yet a widely adopted standard. It's an experimental
         proposal being explored by the web community. We track it because it represents an
-        important trend toward explicit AI content governance.
+        important trend toward explicit AI content governance. Treat it as a declaration of intent,
+        not a technical enforcement mechanism.
       </div>
 
-      <section>
-        <h2>Why ai.txt?</h2>
-        <p>
-          robots.txt can block crawlers, but it can't express nuance like:
-        </p>
+      <nav class="toc" aria-label="Table of contents">
+        <h2 class="toc-title">On this page</h2>
         <ul>
-          <li>"You can use our content for search results but not for training"</li>
-          <li>"You must attribute us when using our content"</li>
-          <li>"We consent to AI usage of our public documentation but not user-generated content"</li>
+          <li><a href="#why">Why ai.txt matters</a></li>
+          <li><a href="#format">The format (full spec)</a></li>
+          <li><a href="#examples">Real-world examples</a></li>
+          <li><a href="#comparison">ai.txt vs other standards</a></li>
+          <li><a href="#best-practices">Best practices</a></li>
+          <li><a href="#adoption">Adoption status</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#implementation">Implementation checklist</a></li>
         </ul>
-        <p>ai.txt fills this gap with a simple, human-readable policy file.</p>
+      </nav>
+
+      <!-- ─── Why ─── -->
+      <section id="why">
+        <h2>Why ai.txt matters</h2>
+        <p>
+          The web has a content licensing problem. AI companies crawl billions of pages to train models,
+          but website owners have no standard way to say "you can use my content for search, but not
+          for training." robots.txt was designed for a simpler era — it controls which paths a bot can
+          access, but says nothing about <em>what the bot does with the content after fetching it</em>.
+        </p>
+        <p>ai.txt exists to fill that gap. Here's why it matters:</p>
+        <ul>
+          <li><strong>Express nuanced consent.</strong> robots.txt is binary: allow or block. ai.txt lets you say "search yes, training no, attribution required." This mirrors how real content licensing works.</li>
+          <li><strong>Legal defensibility.</strong> As AI copyright cases move through courts (NYT v. OpenAI, Getty v. Stability AI), having an explicit, machine-readable policy statement strengthens your legal position. It's harder for a company to claim "we didn't know" when you published a clear policy file.</li>
+          <li><strong>Complement robots.txt.</strong> You might <em>want</em> GPTBot to access your content (so ChatGPT can answer questions about your product) but not use it for model training. robots.txt can't express this. ai.txt can.</li>
+          <li><strong>Future-proof governance.</strong> The EU AI Act, US copyright legislation, and other regulatory frameworks are increasingly requiring transparency about training data. ai.txt provides a standardized way to declare your stance before regulation forces the issue.</li>
+          <li><strong>Signal to the ecosystem.</strong> Even if no AI company checks ai.txt today, publishing one signals to your users, legal team, and the broader community that you've thought about AI policy. It's a public commitment.</li>
+        </ul>
       </section>
 
-      <section>
-        <h2>The Format</h2>
-        <p>Place a file at <code>/ai.txt</code> on your domain root. The format uses simple key-value pairs:</p>
+      <!-- ─── Format ─── -->
+      <section id="format">
+        <h2>The format (full spec)</h2>
+        <p>
+          Place a plain-text file at <code>/ai.txt</code> on your domain root. The format uses simple
+          key-value pairs, one per line. Comments start with <code>#</code>. Fields can repeat.
+        </p>
+
+        <h3>Annotated example</h3>
         <pre><code># AI Policy for example.com
+# Last updated: 2025-01-15
 
-Policy: Allow training on public documentation
-Policy: Require attribution for generated content
-Policy: Disallow training on user-generated content
+# Human-readable policy statements (repeat as needed)
+Policy: Allow AI-powered search and summarization of public content
+Policy: Require attribution when generating content based on our material
+Policy: Disallow use of content for model training or fine-tuning
+Policy: User-generated content may not be used for any AI purpose
+
+# Contact for AI usage inquiries
 Contact: ai-policy@example.com
-Preferred-Model-Use: search, summarization
-Disallowed-Model-Use: training, fine-tuning
-License: CC-BY-4.0</code></pre>
+Contact: https://example.com/ai-policy
 
-        <h3>Common fields</h3>
+# What AI uses are acceptable
+Preferred-Model-Use: search, summarization, question-answering, citation
+
+# What AI uses are prohibited
+Disallowed-Model-Use: training, fine-tuning, embedding-generation, synthetic-data
+
+# License governing AI usage (SPDX identifier)
+License: CC-BY-NC-4.0
+
+# Link to full legal policy
+Terms: https://example.com/terms#ai-usage
+
+# Paths with specific policies (experimental)
+Path: /docs/*
+Path-Policy: Allow training with attribution
+Path: /blog/*
+Path-Policy: Disallow training
+Path: /api/*
+Path-Policy: No AI usage permitted</code></pre>
+
+        <h3>Complete field reference</h3>
         <table>
           <thead>
-            <tr><th>Field</th><th>Description</th></tr>
+            <tr><th>Field</th><th>Required</th><th>Repeatable</th><th>Description</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>Policy</code></td><td>A human-readable policy statement (can appear multiple times)</td></tr>
-            <tr><td><code>Contact</code></td><td>Email or URL for AI usage inquiries</td></tr>
-            <tr><td><code>Preferred-Model-Use</code></td><td>Comma-separated list of acceptable AI uses</td></tr>
-            <tr><td><code>Disallowed-Model-Use</code></td><td>Comma-separated list of prohibited AI uses</td></tr>
-            <tr><td><code>License</code></td><td>SPDX license identifier for AI usage</td></tr>
+            <tr>
+              <td><code>Policy</code></td>
+              <td>Recommended</td>
+              <td>Yes</td>
+              <td>A human-readable policy statement. Use plain language. Each statement should cover one specific rule.</td>
+            </tr>
+            <tr>
+              <td><code>Contact</code></td>
+              <td>Recommended</td>
+              <td>Yes</td>
+              <td>Email address or URL for AI usage inquiries. Allows AI companies to reach you with questions or licensing requests.</td>
+            </tr>
+            <tr>
+              <td><code>Preferred-Model-Use</code></td>
+              <td>No</td>
+              <td>No</td>
+              <td>Comma-separated list of acceptable AI uses. Common values: <code>search</code>, <code>summarization</code>, <code>question-answering</code>, <code>citation</code>, <code>translation</code>.</td>
+            </tr>
+            <tr>
+              <td><code>Disallowed-Model-Use</code></td>
+              <td>No</td>
+              <td>No</td>
+              <td>Comma-separated list of prohibited AI uses. Common values: <code>training</code>, <code>fine-tuning</code>, <code>embedding-generation</code>, <code>synthetic-data</code>, <code>image-generation</code>.</td>
+            </tr>
+            <tr>
+              <td><code>License</code></td>
+              <td>No</td>
+              <td>No</td>
+              <td>SPDX license identifier governing AI usage. Examples: <code>CC-BY-4.0</code>, <code>CC-BY-NC-4.0</code>, <code>CC-BY-SA-4.0</code>, <code>All-Rights-Reserved</code>.</td>
+            </tr>
+            <tr>
+              <td><code>Terms</code></td>
+              <td>No</td>
+              <td>No</td>
+              <td>URL to your full AI usage policy or Terms of Service section covering AI.</td>
+            </tr>
+            <tr>
+              <td><code>Path</code></td>
+              <td>No</td>
+              <td>Yes</td>
+              <td>URL path pattern with glob support. Applies the subsequent <code>Path-Policy</code> to matching URLs.</td>
+            </tr>
+            <tr>
+              <td><code>Path-Policy</code></td>
+              <td>No</td>
+              <td>Yes</td>
+              <td>Policy statement for the preceding <code>Path</code>. Allows per-section granularity.</td>
+            </tr>
           </tbody>
         </table>
       </section>
 
-      <section>
-        <h2>Best Practices</h2>
-        <ul>
-          <li>Be specific about what you allow and disallow — vague policies are hard to enforce.</li>
-          <li>Include a contact email so AI companies can reach you with questions.</li>
-          <li>Reference your Terms of Service or a dedicated AI policy page.</li>
-          <li>Update your ai.txt when your policies change.</li>
-          <li>Use ai.txt alongside robots.txt, not as a replacement — they serve different purposes.</li>
-        </ul>
+      <!-- ─── Examples ─── -->
+      <section id="examples">
+        <h2>Real-world examples</h2>
+        <p>Here's what ai.txt looks like for different types of websites:</p>
+
+        <h3>News publisher (restrictive)</h3>
+        <p>A major news outlet that wants AI to surface their articles in search but not use them for training:</p>
+        <pre><code># AI Policy for dailynews.com
+# Our journalism is not training data.
+
+Policy: AI-powered search and citation with attribution is permitted
+Policy: Model training and fine-tuning on our content is prohibited
+Policy: Synthetic content generation mimicking our editorial voice is prohibited
+Policy: Summarization must link to the original article
+
+Contact: legal@dailynews.com
+Terms: https://dailynews.com/terms/ai
+
+Preferred-Model-Use: search, citation
+Disallowed-Model-Use: training, fine-tuning, synthetic-data, voice-cloning
+
+License: All-Rights-Reserved
+
+Path: /wire/*
+Path-Policy: Licensed from AP/Reuters — no AI use without separate license</code></pre>
+
+        <h3>Open-source project (permissive)</h3>
+        <p>An OSS documentation site that welcomes all AI usage with attribution:</p>
+        <pre><code># AI Policy for openlib.dev
+# We build in the open. Use our docs freely.
+
+Policy: All content is available for AI training and inference
+Policy: Attribution appreciated but not required for training
+Policy: Generated code examples from our docs may be used freely
+
+Contact: hello@openlib.dev
+Terms: https://openlib.dev/license
+
+Preferred-Model-Use: training, fine-tuning, search, summarization, code-generation
+License: MIT</code></pre>
+
+        <h3>E-commerce site (mixed policies)</h3>
+        <p>An online store with different policies for different content types:</p>
+        <pre><code># AI Policy for shopexample.com
+
+Policy: Product descriptions may be used for search and comparison
+Policy: Customer reviews may not be used for any AI purpose
+Policy: Product images may not be used for image generation training
+
+Contact: partnerships@shopexample.com
+
+Preferred-Model-Use: search, price-comparison, product-recommendation
+Disallowed-Model-Use: training, image-generation, review-synthesis
+
+Path: /products/*
+Path-Policy: Allow search and summarization
+Path: /reviews/*
+Path-Policy: No AI usage — user-generated content
+Path: /images/*
+Path-Policy: No training or generation usage</code></pre>
       </section>
 
-      <section>
-        <h2>How It Relates to Other Files</h2>
+      <!-- ─── Comparison ─── -->
+      <section id="comparison">
+        <h2>ai.txt vs other standards</h2>
+        <p>
+          ai.txt isn't the only approach to AI content governance. Here's how it compares to
+          existing and emerging standards:
+        </p>
         <table>
           <thead>
-            <tr><th>File</th><th>Controls</th><th>Enforcement</th></tr>
+            <tr><th>Standard</th><th>What it does</th><th>Enforcement</th><th>AI-specific?</th></tr>
           </thead>
           <tbody>
-            <tr><td><strong>robots.txt</strong></td><td>Crawler access (allow/block paths)</td><td>Technical (bots check it)</td></tr>
-            <tr><td><strong>ai.txt</strong></td><td>Usage policy (how content may be used)</td><td>Legal/social (policy declaration)</td></tr>
-            <tr><td><strong>llms.txt</strong></td><td>Content structure (what the site is about)</td><td>Informational (helps AI understand)</td></tr>
+            <tr>
+              <td><strong>robots.txt</strong></td>
+              <td>Controls crawler access to paths (allow/block)</td>
+              <td>Technical — bots are expected to check</td>
+              <td>No (but AI bots should respect it)</td>
+            </tr>
+            <tr>
+              <td><strong>ai.txt</strong></td>
+              <td>Declares usage policies (how content may be used)</td>
+              <td>Legal/social — policy declaration</td>
+              <td>Yes — built for AI governance</td>
+            </tr>
+            <tr>
+              <td><strong>llms.txt</strong></td>
+              <td>Provides structured context (what the site is about)</td>
+              <td>Informational — helps AI understand</td>
+              <td>Yes — built for LLMs</td>
+            </tr>
+            <tr>
+              <td><strong>TDM headers</strong> (EU)</td>
+              <td>HTTP header <code>TDM-Reservation: 1</code> to opt out of text/data mining</td>
+              <td>Legal — backed by EU DSM Directive Art. 4</td>
+              <td>Partially — covers data mining broadly</td>
+            </tr>
+            <tr>
+              <td><strong>C2PA metadata</strong></td>
+              <td>Embeds provenance data in media files (who created it, how)</td>
+              <td>Technical — verifiable chain of trust</td>
+              <td>Partially — AI-generated content labeling</td>
+            </tr>
+            <tr>
+              <td><strong>Creative Commons</strong></td>
+              <td>Standardized content licenses (CC-BY, CC-NC, etc.)</td>
+              <td>Legal — well-established case law</td>
+              <td>No — predates AI, but applies</td>
+            </tr>
           </tbody>
         </table>
         <p>
-          Think of it this way: robots.txt is the <strong>lock on your door</strong>.
-          ai.txt is the <strong>terms of the lease</strong>.
-          llms.txt is the <strong>welcome packet</strong>.
+          <strong>Key insight:</strong> These standards are complementary, not competing. Use robots.txt
+          for access control, ai.txt for usage policy, llms.txt for AI context, and TDM headers for
+          EU compliance. A comprehensive AI governance setup uses all of them.
         </p>
+      </section>
+
+      <!-- ─── Best Practices ─── -->
+      <section id="best-practices">
+        <h2>Best practices</h2>
+        <div class="practices-grid">
+          <div class="do-col">
+            <h3>Do</h3>
+            <ul>
+              <li>Be specific about what you allow and prohibit — "no training" is clearer than "limited AI use"</li>
+              <li>Include a contact email so AI companies can reach you with licensing questions</li>
+              <li>Reference your Terms of Service or a dedicated AI policy page via the <code>Terms</code> field</li>
+              <li>Use ai.txt <em>alongside</em> robots.txt — they serve different purposes</li>
+              <li>Use per-path policies when different content types have different rules</li>
+              <li>Update your ai.txt when your policies change (and note the date in a comment)</li>
+              <li>Use standard SPDX license identifiers when specifying a <code>License</code></li>
+              <li>Consider your users' content separately — UGC often needs stricter policies</li>
+            </ul>
+          </div>
+          <div class="dont-col">
+            <h3>Don't</h3>
+            <ul>
+              <li>Don't rely on ai.txt as your only defense — it's a policy declaration, not a technical block</li>
+              <li>Don't use vague language like "reasonable use" — be concrete about permitted and prohibited uses</li>
+              <li>Don't forget to also configure robots.txt if you want to technically block AI crawlers</li>
+              <li>Don't assume all AI companies check ai.txt yet — adoption is still early</li>
+              <li>Don't contradict your robots.txt — if you block a bot in robots.txt but allow it in ai.txt, the block takes precedence</li>
+              <li>Don't copy-paste an ai.txt without customizing it for your site's actual policies</li>
+              <li>Don't set policies you can't or won't enforce — it weakens the standard for everyone</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Adoption ─── -->
+      <section id="adoption">
+        <h2>Adoption status</h2>
+        <p>
+          An honest assessment of where ai.txt stands today:
+        </p>
+        <table>
+          <thead>
+            <tr><th>Aspect</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Specification</strong></td>
+              <td>Community proposal — no formal RFC or W3C standard yet</td>
+            </tr>
+            <tr>
+              <td><strong>Publisher adoption</strong></td>
+              <td>Early. Mostly tech-forward publishers and open-source projects experimenting with it</td>
+            </tr>
+            <tr>
+              <td><strong>AI company support</strong></td>
+              <td>No major AI company has committed to checking ai.txt yet. This is the biggest gap.</td>
+            </tr>
+            <tr>
+              <td><strong>Legal standing</strong></td>
+              <td>Untested in court. However, having an explicit policy file strengthens "willful infringement" arguments.</td>
+            </tr>
+            <tr>
+              <td><strong>Tooling</strong></td>
+              <td>Growing — scanners like llmstxt.codes detect and parse ai.txt. Generators are available.</td>
+            </tr>
+            <tr>
+              <td><strong>Related momentum</strong></td>
+              <td>TDM headers (EU), C2PA (media), and robots.txt AI extensions are moving faster with institutional backing.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <strong>Our recommendation:</strong> Add an ai.txt now. It takes 5 minutes, costs nothing, and
+          establishes a clear public record of your AI policy. Even if enforcement is years away, the
+          declaration itself has value — legally, socially, and as organizational policy documentation.
+        </p>
+      </section>
+
+      <!-- ─── FAQ ─── -->
+      <section id="faq">
+        <h2>FAQ</h2>
+
+        <div class="faq-item">
+          <h3>Is ai.txt legally binding?</h3>
+          <p>
+            Not by itself. ai.txt is a policy declaration, not a contract. However, it can strengthen
+            legal arguments by demonstrating that you clearly communicated your terms. Courts in copyright
+            cases look at whether the infringer had notice — a published ai.txt is strong evidence of notice.
+            For binding enforcement, pair it with your Terms of Service.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Does anyone actually check ai.txt?</h3>
+          <p>
+            Not yet at scale. No major AI company has publicly committed to checking ai.txt. However,
+            the same was true of robots.txt in its early years. The standard gains power through adoption —
+            the more sites publish ai.txt, the more pressure AI companies face to respect it. Tools like
+            llmstxt.codes already parse it, and awareness is growing.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>How does ai.txt differ from robots.txt?</h3>
+          <p>
+            robots.txt controls <strong>access</strong> — which bots can fetch which pages. ai.txt controls
+            <strong>usage</strong> — what bots can do with the content after fetching it. You might allow
+            GPTBot to crawl your docs (robots.txt: allow) but prohibit using them for model training
+            (ai.txt: disallowed). They're complementary, not competing.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Should I have both robots.txt and ai.txt?</h3>
+          <p>
+            Yes. robots.txt is the technical enforcement layer (bots are expected to obey it). ai.txt is
+            the policy layer (declaring what you permit). Think of robots.txt as the lock on your door and
+            ai.txt as the terms of your lease. Both are valuable; neither replaces the other.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>What if my ai.txt contradicts my robots.txt?</h3>
+          <p>
+            robots.txt takes technical precedence. If you block a bot in robots.txt, it shouldn't fetch
+            your content at all — making your ai.txt policies moot for that bot. If you allow a bot in
+            robots.txt but restrict usage in ai.txt, the bot <em>should</em> follow the ai.txt usage
+            restrictions (but there's no technical enforcement today). Best practice: keep them consistent.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Will AI companies eventually respect ai.txt?</h3>
+          <p>
+            The trend points toward yes. Regulatory pressure (EU AI Act, US copyright cases), publisher
+            pushback, and industry self-regulation are all moving toward more granular consent mechanisms.
+            Google, OpenAI, and Anthropic already respect robots.txt directives for their AI crawlers.
+            A standard for usage policy (which ai.txt aims to be) is a natural next step.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>What content type should ai.txt be served with?</h3>
+          <p>
+            Serve it as <code>text/plain; charset=utf-8</code>. It should be a static file at the root
+            of your domain: <code>https://yourdomain.com/ai.txt</code>. No HTML, no JSON — just
+            plain text with key-value pairs.
+          </p>
+        </div>
+      </section>
+
+      <!-- ─── Checklist ─── -->
+      <section id="implementation">
+        <h2>Implementation checklist</h2>
+        <ul class="checklist">
+          <li>Define your AI usage policy — what do you allow, what do you prohibit?</li>
+          <li>Create a plain-text file at <code>/ai.txt</code> on your domain root</li>
+          <li>Add <code>Policy</code> statements covering your key rules</li>
+          <li>Add a <code>Contact</code> email or URL for AI usage inquiries</li>
+          <li>Specify <code>Preferred-Model-Use</code> and <code>Disallowed-Model-Use</code></li>
+          <li>Add a <code>License</code> field with an SPDX identifier if applicable</li>
+          <li>Link to your full Terms of Service via the <code>Terms</code> field</li>
+          <li>Add per-path policies if different content types need different rules</li>
+          <li>Verify it's accessible: <code>curl -I https://yourdomain.com/ai.txt</code></li>
+          <li>Ensure your robots.txt and ai.txt don't contradict each other</li>
+          <li>Add a date comment so you know when it was last updated</li>
+          <li>Scan your site to verify detection: <a href="/">llmstxt.codes scanner</a></li>
+        </ul>
       </section>
 
       <div class="cta-box">
         <h3>Check your site's AI policy</h3>
-        <p>See if you have an ai.txt and how it compares.</p>
+        <p>See if you have an ai.txt and how it factors into your AI readiness score.</p>
         <a href="/" class="action-btn action-btn-primary">Scan your domain</a>
         <a href="/tools/generator/ai-txt" class="action-btn action-btn-secondary">Generate ai.txt</a>
       </div>
@@ -111,11 +462,20 @@ License: CC-BY-4.0</code></pre>
 
   h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
   .lead { font-size: var(--text-lg); color: var(--color-text-secondary); line-height: var(--leading-relaxed); margin-bottom: var(--space-8); }
+  .lead a { color: var(--color-primary); }
 
   .badge { font-size: var(--text-xs); font-weight: 600; padding: 2px 8px; border-radius: var(--radius-full); text-transform: uppercase; letter-spacing: 0.05em; }
   .experimental { background: #fef3c7; color: #92400e; }
 
-  .notice { background: #fef3c7; border: 1px solid #fbbf24; border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-8); font-size: var(--text-sm); }
+  .notice { background: #fef3c7; border: 1px solid #fbbf24; border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-8); font-size: var(--text-sm); line-height: var(--leading-relaxed); }
+
+  /* TOC */
+  .toc { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4) var(--space-6); margin-bottom: var(--space-10); }
+  .toc-title { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin: 0 0 var(--space-2) 0; }
+  .toc ul { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: var(--space-6); }
+  .toc li { margin-bottom: var(--space-1); break-inside: avoid; }
+  .toc a { font-size: var(--text-sm); color: var(--color-primary); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
 
   h2 { font-size: var(--text-xl); font-weight: 600; margin-top: var(--space-10); margin-bottom: var(--space-4); }
   h3 { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-6); margin-bottom: var(--space-3); }
@@ -123,6 +483,7 @@ License: CC-BY-4.0</code></pre>
   section { margin-bottom: var(--space-8); }
   ul, ol { padding-left: var(--space-6); margin-bottom: var(--space-4); }
   li { margin-bottom: var(--space-2); line-height: var(--leading-relaxed); }
+  p { line-height: var(--leading-relaxed); margin-bottom: var(--space-3); }
 
   code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-bg); padding: 1px 4px; border-radius: var(--radius-sm); }
   pre { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); overflow-x: auto; margin: var(--space-4) 0; }
@@ -131,8 +492,30 @@ License: CC-BY-4.0</code></pre>
   table { width: 100%; border-collapse: collapse; margin: var(--space-4) 0; }
   th, td { padding: var(--space-3); text-align: left; border-bottom: 1px solid var(--color-border); }
   th { font-weight: 600; font-size: var(--text-sm); color: var(--color-text-secondary); }
-  td { font-size: var(--text-sm); }
+  td { font-size: var(--text-sm); line-height: var(--leading-relaxed); }
 
+  /* Practices grid */
+  .practices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-top: var(--space-4); }
+  .do-col, .dont-col { padding: var(--space-4); border-radius: var(--radius-md); }
+  .do-col { background: #f0fdf4; border: 1px solid #86efac; }
+  .dont-col { background: #fef2f2; border: 1px solid #fca5a5; }
+  .do-col h3 { color: #166534; margin-top: 0; }
+  .dont-col h3 { color: #991b1b; margin-top: 0; }
+  .do-col ul, .dont-col ul { padding-left: var(--space-4); margin-bottom: 0; }
+  .do-col li, .dont-col li { font-size: var(--text-sm); }
+
+  /* FAQ */
+  .faq-item { margin-bottom: var(--space-6); padding-bottom: var(--space-6); border-bottom: 1px solid var(--color-border); }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-item h3 { margin-top: 0; font-size: var(--text-base); }
+  .faq-item p { font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: 0; }
+
+  /* Checklist */
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding-left: var(--space-6); position: relative; font-size: var(--text-sm); }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: var(--color-text-muted); }
+
+  /* CTA */
   .cta-box {
     margin-top: var(--space-12); padding: var(--space-8); background: var(--color-primary-light);
     border-radius: var(--radius-lg); text-align: center;
@@ -145,4 +528,9 @@ License: CC-BY-4.0</code></pre>
   :global(.action-btn-primary:hover) { background: var(--color-primary-hover); text-decoration: none; }
   :global(.action-btn-secondary) { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
   :global(.action-btn-secondary:hover) { background: var(--color-bg); }
+
+  @media (max-width: 640px) {
+    .toc ul { columns: 1; }
+    .practices-grid { grid-template-columns: 1fr; }
+  }
 </style>

@@ -2,32 +2,55 @@
 import Base from '../../layouts/Base.astro';
 export const prerender = true;
 ---
-<Base title="What is llms.txt?" description="Learn about llms.txt — the new standard for telling AI models about your website. Spec explainer, best practices, and how to create one.">
+<Base title="What is llms.txt? The Complete Guide (2025)" description="The definitive guide to llms.txt — the AI README standard for websites. Spec explainer, best practices, real examples from Anthropic, Cloudflare, Stripe, and more.">
   <article class="learn-page">
     <div class="container content">
       <nav class="breadcrumb" aria-label="Breadcrumb">
         <a href="/">Home</a> / <a href="/learn/llms-txt">Learn</a> / <span>llms.txt</span>
       </nav>
 
-      <h1>What is llms.txt?</h1>
+      <h1>What is llms.txt? The Complete Guide</h1>
       <p class="lead">
-        <strong>llms.txt</strong> is a proposed standard (created by Jeremy Howard, Sept 2024) that gives AI language models
+        <strong>llms.txt</strong> is a proposed standard (created by <a href="https://jeremy.fast.ai" target="_blank" rel="noopener">Jeremy Howard</a>, Sept 2024) that gives AI language models
         structured information about your website. Think of it as a README for AI — it tells models what your site does,
         what's important, and where to find key content.
       </p>
 
-      <section>
-        <h2>Why does it matter?</h2>
+      <nav class="toc" aria-label="Table of contents">
+        <h2 class="toc-title">On this page</h2>
         <ul>
-          <li><strong>AI models are already reading your site.</strong> ChatGPT, Claude, Perplexity, and others browse the web. Without llms.txt, they guess what your site is about.</li>
-          <li><strong>Control the narrative.</strong> llms.txt lets you tell AI exactly what you want it to know — your tagline, key pages, documentation structure.</li>
-          <li><strong>Better AI search results.</strong> Sites with llms.txt may get more accurate representation in AI-powered search engines.</li>
+          <li><a href="#why">Why llms.txt matters</a></li>
+          <li><a href="#format">The format (full spec)</a></li>
+          <li><a href="#examples">Real-world examples</a></li>
+          <li><a href="#best-practices">Best practices</a></li>
+          <li><a href="#llms-full">llms.txt vs llms-full.txt</a></li>
+          <li><a href="#adoption">Who's using it</a></li>
+          <li><a href="#comparison">Comparison with other files</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#implementation">Implementation checklist</a></li>
+        </ul>
+      </nav>
+
+      <section id="why">
+        <h2>Why llms.txt matters</h2>
+        <p>
+          AI models are already reading your website. ChatGPT, Claude, Perplexity, Gemini, and dozens of others
+          browse the web every day. Without llms.txt, they have to guess what your site is about by crawling pages,
+          parsing HTML, and hoping the important stuff is near the top.
+        </p>
+        <p>That's a bad bet. Here's what llms.txt actually solves:</p>
+        <ul>
+          <li><strong>Control the narrative.</strong> You decide what AI knows about you. Your tagline, your key pages, your documentation structure. Not whatever Google's snippet picked up 3 months ago.</li>
+          <li><strong>Better AI search results.</strong> When someone asks ChatGPT or Perplexity about your product, the answer comes from your llms.txt, not a random blog post from 2019.</li>
+          <li><strong>Structured context for RAG.</strong> Applications that use Retrieval-Augmented Generation (RAG) can ingest your llms.txt as a primary source, getting the site map and key URLs in one request instead of crawling hundreds of pages.</li>
+          <li><strong>Save AI tokens.</strong> A well-structured llms.txt gives models the information they need in ~2KB instead of forcing them to process megabytes of HTML.</li>
+          <li><strong>Future-proof SEO.</strong> As AI-powered search (GEO: Generative Engine Optimization) grows, having structured AI-readable content becomes as important as traditional SEO.</li>
         </ul>
       </section>
 
-      <section>
-        <h2>The Format</h2>
-        <p>llms.txt is a simple Markdown-like text file placed at <code>/llms.txt</code> on your domain root.</p>
+      <section id="format">
+        <h2>The format (full spec)</h2>
+        <p>llms.txt is a simple Markdown-like text file placed at <code>/llms.txt</code> on your domain root. It follows a strict structure:</p>
         <pre><code># Your Site Name
 
 > A brief description of what your site does.
@@ -36,59 +59,308 @@ export const prerender = true;
 
 - [Getting Started](https://example.com/docs/getting-started): Quick start guide
 - [API Reference](https://example.com/docs/api): Full API documentation
+- [Authentication](https://example.com/docs/auth): How auth works
 
 ## Blog
 
-- [Latest Release](https://example.com/blog/v2): What's new in v2</code></pre>
+- [Latest Release](https://example.com/blog/v2): What's new in v2
+
+## Optional
+
+- [Pricing](https://example.com/pricing): Plans and billing
+- [Changelog](https://example.com/changelog): Version history</code></pre>
 
         <h3>Structure rules</h3>
         <ol>
-          <li><strong>Title (required):</strong> First line must be <code># Your Site Name</code></li>
-          <li><strong>Description (recommended):</strong> A blockquote or paragraph after the title</li>
-          <li><strong>Sections (recommended):</strong> Use <code>## Section Name</code> headings to organize links</li>
-          <li><strong>Links (recommended):</strong> Markdown links with descriptions: <code>[Title](URL): Description</code></li>
+          <li><strong>Title (required):</strong> First line must be <code># Your Site Name</code>. This is how AI models will refer to your product.</li>
+          <li><strong>Description (recommended):</strong> A blockquote (<code>&gt;</code>) or paragraph immediately after the title. Keep it under 200 characters. This is your elevator pitch to AI.</li>
+          <li><strong>Sections (recommended):</strong> Use <code>## Section Name</code> headings to organize links. Common sections: Docs, API, Blog, Guides, Legal.</li>
+          <li><strong>Links (recommended):</strong> Markdown links with descriptions: <code>- [Title](URL): Description</code>. The colon-separated description is important, it tells the AI what each page contains without fetching it.</li>
+          <li><strong>Optional section:</strong> Links under <code>## Optional</code> are lower-priority. AI models may skip these when context is limited.</li>
         </ol>
-      </section>
 
-      <section>
-        <h2>Best Practices</h2>
-        <ul>
-          <li>Keep it concise — under 50KB. AI models have context limits.</li>
-          <li>Lead with your most important pages (docs, pricing, getting started).</li>
-          <li>Use descriptive link text, not "click here" or raw URLs.</li>
-          <li>Serve as <code>text/plain</code> or <code>text/markdown</code> content type.</li>
-          <li>Update when you ship major changes to your site structure.</li>
-          <li>Consider also creating <code>llms-full.txt</code> for comprehensive documentation.</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>Who's using it?</h2>
+        <h3>Content type</h3>
         <p>
-          Major sites and frameworks are adopting llms.txt including Anthropic (docs.anthropic.com),
-          Cloudflare, Stripe, and many open source projects. The spec is gaining traction as
-          AI-powered search becomes mainstream.
+          Serve your llms.txt as <code>text/plain</code> or <code>text/markdown</code>. Both work. Most web servers
+          default to <code>text/plain</code> for <code>.txt</code> files, which is fine.
         </p>
-      </section>
 
-      <section>
-        <h2>How It Relates to Other Files</h2>
+        <h3>Size guidelines</h3>
         <table>
           <thead>
-            <tr><th>File</th><th>Purpose</th><th>Audience</th></tr>
+            <tr><th>Size</th><th>Recommendation</th></tr>
           </thead>
           <tbody>
-            <tr><td><strong>robots.txt</strong></td><td>Control which bots can crawl</td><td>All crawlers</td></tr>
-            <tr><td><strong>llms.txt</strong></td><td>Tell AI what your site is about</td><td>AI language models</td></tr>
-            <tr><td><strong>ai.txt</strong></td><td>AI usage policy & permissions</td><td>AI companies</td></tr>
-            <tr><td><strong>sitemap.xml</strong></td><td>List all pages for indexing</td><td>Search engines</td></tr>
+            <tr><td>Under 2KB</td><td>Ideal for most sites</td></tr>
+            <tr><td>2-10KB</td><td>Good for large documentation sites</td></tr>
+            <tr><td>10-50KB</td><td>Acceptable, but consider using llms-full.txt for the extended version</td></tr>
+            <tr><td>Over 50KB</td><td>Too large. AI models will truncate. Split into llms.txt (summary) + llms-full.txt (complete)</td></tr>
           </tbody>
         </table>
       </section>
 
+      <section id="examples">
+        <h2>Real-world examples</h2>
+        <p>Here's how major companies structure their llms.txt files:</p>
+
+        <h3>Anthropic (docs.anthropic.com)</h3>
+        <pre><code># Anthropic
+
+> Anthropic is an AI safety company that builds reliable, interpretable, and steerable AI systems.
+
+## Docs
+
+- [API Reference](https://docs.anthropic.com/en/api): Complete API documentation
+- [User Guides](https://docs.anthropic.com/en/docs): Guides for using Claude
+- [Prompt Engineering](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering): Best practices for prompts</code></pre>
+
+        <h3>A SaaS product</h3>
+        <pre><code># Acme Analytics
+
+> Real-time product analytics for SaaS teams. Track events, build funnels, run A/B tests.
+
+## Docs
+
+- [Getting Started](https://acme.com/docs/quickstart): Install the SDK and send your first event in 5 minutes
+- [JavaScript SDK](https://acme.com/docs/sdk/javascript): Browser and Node.js integration
+- [REST API](https://acme.com/docs/api): Server-side event ingestion
+
+## Guides
+
+- [Funnel Analysis](https://acme.com/docs/guides/funnels): Build and optimize conversion funnels
+- [Cohort Retention](https://acme.com/docs/guides/retention): Track user retention over time
+
+## Optional
+
+- [Pricing](https://acme.com/pricing): Free tier available, scales with events
+- [Status](https://status.acme.com): System uptime and incident history</code></pre>
+
+        <h3>A personal blog / portfolio</h3>
+        <pre><code># Jane Doe
+
+> Software engineer writing about distributed systems, Rust, and developer tools.
+
+## Writing
+
+- [Building a Database from Scratch](https://jane.dev/posts/building-a-database): Series on implementing a key-value store in Rust
+- [Why I Left Big Tech](https://jane.dev/posts/leaving-big-tech): Reflections on indie development
+
+## Projects
+
+- [kvstore](https://github.com/jane/kvstore): Embedded key-value database in Rust
+- [dotfiles](https://github.com/jane/dotfiles): My development environment setup</code></pre>
+      </section>
+
+      <section id="best-practices">
+        <h2>Best practices</h2>
+        <div class="practices-grid">
+          <div class="practice do">
+            <h4>Do</h4>
+            <ul>
+              <li>Keep it concise, under 50KB. AI models have context limits.</li>
+              <li>Lead with your most important pages (docs, pricing, getting started).</li>
+              <li>Use descriptive link text, not "click here" or raw URLs.</li>
+              <li>Add a colon-separated description after each link.</li>
+              <li>Serve as <code>text/plain</code> or <code>text/markdown</code> content type.</li>
+              <li>Update when you ship major changes to your site structure.</li>
+              <li>Include your product's value proposition in the description.</li>
+              <li>Group links logically by section (Docs, Blog, Legal, etc.).</li>
+              <li>Test your llms.txt with our <a href="/tools/playground">Playground</a> validator.</li>
+            </ul>
+          </div>
+          <div class="practice dont">
+            <h4>Don't</h4>
+            <ul>
+              <li>Don't include every page on your site. Pick the 10-30 most important.</li>
+              <li>Don't use HTML. It's a plain text/markdown file.</li>
+              <li>Don't duplicate your sitemap.xml. llms.txt is curated, sitemap is comprehensive.</li>
+              <li>Don't include login-required pages unless the content is genuinely useful to AI.</li>
+              <li>Don't use relative URLs. Always use absolute URLs with the full domain.</li>
+              <li>Don't add marketing fluff. AI models don't need "Award-winning platform" language.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="llms-full">
+        <h2>llms.txt vs llms-full.txt</h2>
+        <p>
+          The spec defines two files:
+        </p>
+        <table>
+          <thead>
+            <tr><th>File</th><th>Purpose</th><th>Size</th><th>Content</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/llms.txt</code></td>
+              <td>Summary for quick context</td>
+              <td>Under 10KB</td>
+              <td>Title, description, key links with descriptions</td>
+            </tr>
+            <tr>
+              <td><code>/llms-full.txt</code></td>
+              <td>Complete documentation dump</td>
+              <td>Up to a few MB</td>
+              <td>Full text of all key documentation pages, concatenated</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <strong>When to use llms-full.txt:</strong> If your product has extensive documentation (API references,
+          tutorials, guides), llms-full.txt lets AI models ingest everything in one request. This is especially
+          useful for code generation tools like Cursor, Copilot, and Claude that need deep technical context.
+        </p>
+        <p>
+          <strong>Most sites only need llms.txt.</strong> If you're a blog, a SaaS landing page, or a small site,
+          the summary file is enough. Only add llms-full.txt if you have substantial documentation that AI tools
+          would benefit from having in full.
+        </p>
+      </section>
+
+      <section id="adoption">
+        <h2>Who's using llms.txt</h2>
+        <p>
+          Adoption is growing fast. As of early 2025, hundreds of sites have adopted llms.txt,
+          including major tech companies, frameworks, and open source projects:
+        </p>
+        <div class="adoption-grid">
+          <div class="adoption-category">
+            <h4>AI Companies</h4>
+            <ul>
+              <li>Anthropic (docs.anthropic.com)</li>
+              <li>Perplexity (docs.perplexity.ai)</li>
+              <li>Cursor (cursor.com)</li>
+            </ul>
+          </div>
+          <div class="adoption-category">
+            <h4>Developer Tools</h4>
+            <ul>
+              <li>Cloudflare (developers.cloudflare.com)</li>
+              <li>Stripe (docs.stripe.com)</li>
+              <li>Vercel (vercel.com)</li>
+              <li>Supabase (supabase.com)</li>
+            </ul>
+          </div>
+          <div class="adoption-category">
+            <h4>Frameworks & Libraries</h4>
+            <ul>
+              <li>FastAPI (fastapi.tiangolo.com)</li>
+              <li>Pydantic (docs.pydantic.dev)</li>
+              <li>Astro (astro.build)</li>
+            </ul>
+          </div>
+        </div>
+        <p class="hint">
+          Want to check if a site has llms.txt? <a href="/">Scan it with our tool</a>.
+        </p>
+      </section>
+
+      <section id="comparison">
+        <h2>How it relates to other files</h2>
+        <table>
+          <thead>
+            <tr><th>File</th><th>Purpose</th><th>Audience</th><th>Analogy</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>robots.txt</code></td><td>Control which bots can crawl</td><td>All crawlers</td><td>The lock on your door</td></tr>
+            <tr><td><code>llms.txt</code></td><td>Tell AI what your site is about</td><td>AI language models</td><td>The welcome packet</td></tr>
+            <tr><td><code>ai.txt</code></td><td>AI usage policy & permissions</td><td>AI companies</td><td>The terms of the lease</td></tr>
+            <tr><td><code>sitemap.xml</code></td><td>List all pages for indexing</td><td>Search engines & crawlers</td><td>The floor plan</td></tr>
+          </tbody>
+        </table>
+        <p>
+          These files work together. <code>robots.txt</code> controls access, <code>sitemap.xml</code> lists all pages,
+          <code>llms.txt</code> curates the important ones for AI, and <code>ai.txt</code> sets the legal terms.
+          A complete AI strategy uses all four.
+        </p>
+      </section>
+
+      <section id="faq">
+        <h2>Frequently asked questions</h2>
+
+        <div class="faq-item">
+          <h3>Is llms.txt an official web standard?</h3>
+          <p>
+            Not yet. It's a proposal by Jeremy Howard (creator of fast.ai, former Kaggle president) published in September 2024.
+            It doesn't have W3C or IETF backing, but adoption has been rapid because the format is simple and the need is real.
+            It follows the same pattern as robots.txt, which was also a community convention before being formally standardized.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Do AI models actually read llms.txt?</h3>
+          <p>
+            Yes. Browsing-enabled models (ChatGPT with browsing, Claude with web access, Perplexity)
+            check for llms.txt when they visit a site. RAG-based applications and AI code editors
+            (Cursor, Windsurf) also use it to load context about libraries and frameworks.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Will llms.txt hurt my SEO?</h3>
+          <p>
+            No. llms.txt is a separate file that doesn't affect how Google or Bing index your pages.
+            It's additive: it gives AI models an extra signal on top of your existing SEO.
+            In fact, better AI representation can drive more traffic as AI-powered search grows.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>How often should I update my llms.txt?</h3>
+          <p>
+            Whenever your site structure changes significantly. New product launch, major docs rewrite,
+            new blog series. You don't need to update it for every blog post. Think of it like updating
+            your README, not your changelog.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>What if I don't want AI to read my site?</h3>
+          <p>
+            Don't create an llms.txt. Use <a href="/learn/robots-txt">robots.txt</a> to block AI crawlers,
+            and <a href="/learn/ai-txt">ai.txt</a> to declare your policy. llms.txt is opt-in, there's no
+            penalty for not having one beyond missing out on better AI representation.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Can I use llms.txt on a subdomain?</h3>
+          <p>
+            Yes. Place it at the root of each subdomain: <code>docs.example.com/llms.txt</code>,
+            <code>blog.example.com/llms.txt</code>. Each subdomain can have its own llms.txt.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>What about non-English sites?</h3>
+          <p>
+            Write your llms.txt in whatever language your site is in. AI models are multilingual.
+            If you serve content in multiple languages, you can include links to all language versions
+            and note the language in the description.
+          </p>
+        </div>
+      </section>
+
+      <section id="implementation">
+        <h2>Implementation checklist</h2>
+        <div class="checklist">
+          <label class="check-item"><input type="checkbox" /> Create <code>/llms.txt</code> at your domain root</label>
+          <label class="check-item"><input type="checkbox" /> Add a title (<code># Site Name</code>) as the first line</label>
+          <label class="check-item"><input type="checkbox" /> Add a description blockquote</label>
+          <label class="check-item"><input type="checkbox" /> Organize links into sections (<code>## Docs</code>, <code>## Blog</code>, etc.)</label>
+          <label class="check-item"><input type="checkbox" /> Use absolute URLs for all links</label>
+          <label class="check-item"><input type="checkbox" /> Add colon-separated descriptions to each link</label>
+          <label class="check-item"><input type="checkbox" /> Verify content type is <code>text/plain</code> or <code>text/markdown</code></label>
+          <label class="check-item"><input type="checkbox" /> Keep file size under 50KB</label>
+          <label class="check-item"><input type="checkbox" /> Test with our <a href="/tools/playground">Playground validator</a></label>
+          <label class="check-item"><input type="checkbox" /> <a href="/">Scan your domain</a> to verify your score</label>
+        </div>
+      </section>
+
       <div class="cta-box">
-        <h3>Check your site</h3>
-        <p>See if you have an llms.txt and how it scores.</p>
+        <h3>Get started</h3>
+        <p>Check your site's llms.txt or generate one from scratch.</p>
         <a href="/" class="action-btn action-btn-primary">Scan your domain</a>
         <a href="/tools/generator/llms-txt" class="action-btn action-btn-secondary">Generate llms.txt</a>
       </div>
@@ -104,13 +376,16 @@ export const prerender = true;
 
   h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-4); }
   .lead { font-size: var(--text-lg); color: var(--color-text-secondary); line-height: var(--leading-relaxed); margin-bottom: var(--space-8); }
+  .lead a { color: var(--color-primary); }
 
   h2 { font-size: var(--text-xl); font-weight: 600; margin-top: var(--space-10); margin-bottom: var(--space-4); }
   h3 { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-6); margin-bottom: var(--space-3); }
+  h4 { font-size: var(--text-base); font-weight: 600; margin-bottom: var(--space-2); }
 
   section { margin-bottom: var(--space-8); }
   ul, ol { padding-left: var(--space-6); margin-bottom: var(--space-4); }
   li { margin-bottom: var(--space-2); line-height: var(--leading-relaxed); }
+  p { line-height: var(--leading-relaxed); margin-bottom: var(--space-3); }
 
   code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-bg); padding: 1px 4px; border-radius: var(--radius-sm); }
   pre { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); overflow-x: auto; margin: var(--space-4) 0; }
@@ -120,6 +395,47 @@ export const prerender = true;
   th, td { padding: var(--space-3); text-align: left; border-bottom: 1px solid var(--color-border); }
   th { font-weight: 600; font-size: var(--text-sm); color: var(--color-text-secondary); }
   td { font-size: var(--text-sm); }
+
+  .hint { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+  /* Table of contents */
+  .toc { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4) var(--space-6); margin-bottom: var(--space-8); }
+  .toc-title { font-size: var(--text-sm); font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0; margin-bottom: var(--space-2); }
+  .toc ul { columns: 2; padding-left: var(--space-4); margin: 0; }
+  .toc li { font-size: var(--text-sm); margin-bottom: var(--space-1); }
+  .toc a { color: var(--color-primary); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Practices grid */
+  .practices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin: var(--space-4) 0; }
+  .practice { padding: var(--space-4); border-radius: var(--radius-md); }
+  .practice.do { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .practice.dont { background: #fef2f2; border: 1px solid #fecaca; }
+  .practice h4 { margin-top: 0; }
+  .practice.do h4 { color: #16a34a; }
+  .practice.dont h4 { color: #dc2626; }
+  .practice ul { padding-left: var(--space-4); margin: 0; }
+  .practice li { font-size: var(--text-sm); }
+
+  /* Adoption grid */
+  .adoption-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); margin: var(--space-4) 0; }
+  .adoption-category { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); }
+  .adoption-category h4 { margin-top: 0; font-size: var(--text-sm); color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+  .adoption-category ul { padding-left: var(--space-4); margin: 0; }
+  .adoption-category li { font-size: var(--text-sm); }
+
+  /* FAQ */
+  .faq-item { margin-bottom: var(--space-6); padding-bottom: var(--space-6); border-bottom: 1px solid var(--color-border); }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-item h3 { margin-top: 0; }
+  .faq-item p { font-size: var(--text-sm); color: var(--color-text-secondary); }
+  .faq-item a { color: var(--color-primary); }
+
+  /* Checklist */
+  .checklist { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); }
+  .check-item { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) 0; font-size: var(--text-sm); cursor: pointer; }
+  .check-item input[type="checkbox"] { accent-color: var(--color-primary); }
+  .check-item a { color: var(--color-primary); }
 
   .cta-box {
     margin-top: var(--space-12); padding: var(--space-8); background: var(--color-primary-light);
@@ -133,4 +449,10 @@ export const prerender = true;
   :global(.action-btn-primary:hover) { background: var(--color-primary-hover); text-decoration: none; }
   :global(.action-btn-secondary) { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
   :global(.action-btn-secondary:hover) { background: var(--color-bg); }
+
+  @media (max-width: 640px) {
+    .toc ul { columns: 1; }
+    .practices-grid { grid-template-columns: 1fr; }
+    .adoption-grid { grid-template-columns: 1fr; }
+  }
 </style>

@@ -1,8 +1,50 @@
 ---
 import Base from '../../layouts/Base.astro';
 export const prerender = true;
+
+const sveltekitCode = "// src/routes/sitemap.xml/+server.ts\n" +
+  "export async function GET() {\n" +
+  "  const pages = ['', '/docs', '/blog', '/about'];\n" +
+  "  const body = `&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;\n" +
+  "&lt;urlset xmlns=&quot;http://www.sitemaps.org/schemas/sitemap/0.9&quot;&gt;\n" +
+  "  ${pages.map(p =&gt; `&lt;url&gt;&lt;loc&gt;https://example.com${p}&lt;/loc&gt;&lt;/url&gt;`).join('\\n  ')}\n" +
+  "&lt;/urlset&gt;`;\n" +
+  "  return new Response(body, {\n" +
+  "    headers: { 'Content-Type': 'application/xml' },\n" +
+  "  });\n" +
+  "}";
+
+const astroCode = `# Install the integration
+npx astro add sitemap
+
+# astro.config.mjs
+import sitemap from '@astrojs/sitemap';
+export default defineConfig({
+  site: 'https://example.com',
+  integrations: [sitemap()],
+});`;
+
+const nextjsCode = `// app/sitemap.ts
+import type { MetadataRoute } from 'next';
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  return [
+    { url: 'https://example.com', lastModified: new Date(), priority: 1.0 },
+    { url: 'https://example.com/docs', lastModified: new Date(), priority: 0.8 },
+    { url: 'https://example.com/blog', lastModified: new Date(), priority: 0.6 },
+  ];
+}`;
+
+const nuxtCode = `# Install the module
+npx nuxi module add @nuxtjs/sitemap
+
+# nuxt.config.ts
+export default defineNuxtConfig({
+  site: { url: 'https://example.com' },
+  modules: ['@nuxtjs/sitemap'],
+});`;
 ---
-<Base title="Sitemaps and AI Discovery" description="Learn how sitemap.xml helps AI crawlers discover your content. Best practices for XML sitemaps in the age of AI.">
+<Base title="Sitemaps and AI Discovery — The Complete Guide (2025)" description="The definitive guide to sitemap.xml for AI readiness. Format spec, AI-specific strategies, framework integration (Astro, Next.js, Nuxt, SvelteKit), validation, and implementation checklist.">
   <article class="learn-page">
     <div class="container content">
       <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -13,99 +55,438 @@ export const prerender = true;
       <p class="lead">
         <strong>sitemap.xml</strong> is the oldest file in the AI readiness toolkit — and still one
         of the most important. It tells every crawler, including AI bots, exactly which pages
-        exist on your site.
+        exist on your site. Without it, AI models only see what they can reach by following links.
       </p>
 
-      <section>
-        <h2>Why Sitemaps Still Matter for AI</h2>
+      <nav class="toc" aria-label="Table of contents">
+        <h2 class="toc-title">On this page</h2>
+        <ul>
+          <li><a href="#why">Why sitemaps matter for AI</a></li>
+          <li><a href="#format">The format (full spec)</a></li>
+          <li><a href="#ai-strategies">AI-specific strategies</a></li>
+          <li><a href="#frameworks">Framework integration</a></li>
+          <li><a href="#validation">Validation & testing</a></li>
+          <li><a href="#best-practices">Best practices</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#implementation">Implementation checklist</a></li>
+        </ul>
+      </nav>
+
+      <!-- ─── Why ─── -->
+      <section id="why">
+        <h2>Why sitemaps matter for AI</h2>
         <p>
-          AI crawlers use sitemaps the same way search engines do: to discover pages they might
-          miss by following links alone. A complete sitemap ensures AI models have a full picture
-          of your content, not just the pages linked from your homepage.
+          AI crawlers — GPTBot (OpenAI), ClaudeBot (Anthropic), Google-Extended, PerplexityBot,
+          and dozens more — use sitemaps the same way search engines do: to discover pages they
+          might miss by following links alone. But AI crawlers have some unique characteristics
+          that make sitemaps even more important:
         </p>
         <ul>
-          <li><strong>Complete discovery:</strong> Deep pages in documentation, blog archives, and API references are often orphaned from navigation. Sitemaps ensure they're found.</li>
-          <li><strong>Priority signals:</strong> The <code>priority</code> and <code>lastmod</code> fields help crawlers focus on your most important and recently updated pages.</li>
-          <li><strong>Efficiency:</strong> Instead of crawling every link, bots can fetch your sitemap once and know exactly what exists.</li>
+          <li><strong>Complete discovery.</strong> Deep pages in documentation, blog archives, API references, and changelog entries are often orphaned from navigation. AI training pipelines rely on sitemaps to find this content. If it's not in your sitemap, it may not exist in the training data.</li>
+          <li><strong>Crawl budget efficiency.</strong> AI companies crawl at massive scale. A sitemap lets them fetch one file and know exactly what exists, instead of burning requests following every link on every page. This is better for your server and for their pipeline.</li>
+          <li><strong>Freshness signals.</strong> The <code>lastmod</code> field tells crawlers which pages have been updated recently. AI systems use this to prioritize re-indexing changed content — ensuring their knowledge base stays current.</li>
+          <li><strong>Priority signals.</strong> While <code>priority</code> is advisory, it signals which pages you consider most important. For AI models building a site understanding, this helps weight your homepage and key docs higher than your privacy policy.</li>
+          <li><strong>RAG pipeline support.</strong> Applications using Retrieval-Augmented Generation (RAG) often start by fetching a site's sitemap to build a comprehensive index. Without a sitemap, RAG systems miss deep content.</li>
+          <li><strong>Foundation for other standards.</strong> robots.txt references your sitemap (<code>Sitemap:</code> directive). llms.txt links to key pages. Both assume the sitemap exists as the canonical list of URLs. It's the base layer of the AI readiness stack.</li>
         </ul>
       </section>
 
-      <section>
-        <h2>The Format</h2>
-        <p>Place a file at <code>/sitemap.xml</code> on your domain root (or reference it from robots.txt):</p>
+      <!-- ─── Format ─── -->
+      <section id="format">
+        <h2>The format (full spec)</h2>
+        <p>
+          Sitemaps follow the <a href="https://www.sitemaps.org/protocol.html" target="_blank" rel="noopener">sitemaps.org protocol</a>,
+          originally developed by Google, Microsoft, and Yahoo in 2005. Place the file at <code>/sitemap.xml</code>
+          on your domain root (or reference it from robots.txt).
+        </p>
+
+        <h3>Basic sitemap</h3>
         <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt;
   &lt;url&gt;
     &lt;loc&gt;https://example.com/&lt;/loc&gt;
-    &lt;lastmod&gt;2024-12-01&lt;/lastmod&gt;
+    &lt;lastmod&gt;2025-01-15&lt;/lastmod&gt;
+    &lt;changefreq&gt;weekly&lt;/changefreq&gt;
     &lt;priority&gt;1.0&lt;/priority&gt;
   &lt;/url&gt;
   &lt;url&gt;
     &lt;loc&gt;https://example.com/docs/getting-started&lt;/loc&gt;
-    &lt;lastmod&gt;2024-11-15&lt;/lastmod&gt;
+    &lt;lastmod&gt;2025-01-10&lt;/lastmod&gt;
+    &lt;changefreq&gt;monthly&lt;/changefreq&gt;
     &lt;priority&gt;0.8&lt;/priority&gt;
+  &lt;/url&gt;
+  &lt;url&gt;
+    &lt;loc&gt;https://example.com/blog/ai-readiness-guide&lt;/loc&gt;
+    &lt;lastmod&gt;2024-12-20&lt;/lastmod&gt;
+    &lt;changefreq&gt;yearly&lt;/changefreq&gt;
+    &lt;priority&gt;0.6&lt;/priority&gt;
   &lt;/url&gt;
 &lt;/urlset&gt;</code></pre>
 
+        <h3>Element reference</h3>
+        <table>
+          <thead>
+            <tr><th>Element</th><th>Required</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>&lt;urlset&gt;</code></td>
+              <td>Yes</td>
+              <td>Root element. Must include the sitemaps.org namespace.</td>
+            </tr>
+            <tr>
+              <td><code>&lt;url&gt;</code></td>
+              <td>Yes</td>
+              <td>Container for each URL entry.</td>
+            </tr>
+            <tr>
+              <td><code>&lt;loc&gt;</code></td>
+              <td>Yes</td>
+              <td>Full URL of the page. Must be absolute (include <code>https://</code>). Must match canonical URL.</td>
+            </tr>
+            <tr>
+              <td><code>&lt;lastmod&gt;</code></td>
+              <td>No*</td>
+              <td>Last modification date in W3C Datetime format (<code>YYYY-MM-DD</code> or full ISO 8601). <em>*Strongly recommended for AI crawlers.</em></td>
+            </tr>
+            <tr>
+              <td><code>&lt;changefreq&gt;</code></td>
+              <td>No</td>
+              <td>Hint about how often the page changes: <code>always</code>, <code>hourly</code>, <code>daily</code>, <code>weekly</code>, <code>monthly</code>, <code>yearly</code>, <code>never</code>. <em>Most modern crawlers ignore this.</em></td>
+            </tr>
+            <tr>
+              <td><code>&lt;priority&gt;</code></td>
+              <td>No</td>
+              <td>Relative priority from <code>0.0</code> to <code>1.0</code> (default: <code>0.5</code>). Only meaningful within your own site — not compared across sites. <em>Advisory only; many crawlers ignore it.</em></td>
+            </tr>
+          </tbody>
+        </table>
+
         <h3>Sitemap index (for large sites)</h3>
-        <p>Sites with many pages can use a sitemap index that references multiple sitemap files:</p>
+        <p>Sites with more than 50,000 URLs or sitemaps exceeding 50MB should use a sitemap index:</p>
         <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt;
   &lt;sitemap&gt;
     &lt;loc&gt;https://example.com/sitemap-pages.xml&lt;/loc&gt;
+    &lt;lastmod&gt;2025-01-15&lt;/lastmod&gt;
   &lt;/sitemap&gt;
   &lt;sitemap&gt;
     &lt;loc&gt;https://example.com/sitemap-blog.xml&lt;/loc&gt;
+    &lt;lastmod&gt;2025-01-12&lt;/lastmod&gt;
+  &lt;/sitemap&gt;
+  &lt;sitemap&gt;
+    &lt;loc&gt;https://example.com/sitemap-docs.xml&lt;/loc&gt;
+    &lt;lastmod&gt;2025-01-10&lt;/lastmod&gt;
   &lt;/sitemap&gt;
 &lt;/sitemapindex&gt;</code></pre>
       </section>
 
-      <section>
-        <h2>Best Practices</h2>
-        <ul>
-          <li>Keep sitemaps under 50MB / 50,000 URLs. Use a sitemap index for larger sites.</li>
-          <li>Include a <code>lastmod</code> date — it helps AI crawlers prioritize recent content.</li>
-          <li>Reference your sitemap in robots.txt: <code>Sitemap: https://example.com/sitemap.xml</code></li>
-          <li>Auto-generate sitemaps with your framework (Astro, Next.js, WordPress all have plugins).</li>
-          <li>Only include canonical URLs — no duplicates, no redirects, no error pages.</li>
-          <li>Update your sitemap when content changes — stale sitemaps are worse than no sitemap.</li>
-        </ul>
+      <!-- ─── AI Strategies ─── -->
+      <section id="ai-strategies">
+        <h2>AI-specific sitemap strategies</h2>
+        <p>
+          Standard sitemap advice focuses on search engines. Here's what matters specifically for AI crawlers:
+        </p>
+
+        <h3>Prioritize documentation and reference content</h3>
+        <p>
+          AI models and RAG systems get the most value from structured, informational content.
+          Give your docs, API references, guides, and tutorials higher priority than marketing pages:
+        </p>
+        <pre><code>&lt;!-- High priority: documentation that AI should know about --&gt;
+&lt;url&gt;
+  &lt;loc&gt;https://example.com/docs/api-reference&lt;/loc&gt;
+  &lt;lastmod&gt;2025-01-15&lt;/lastmod&gt;
+  &lt;priority&gt;0.9&lt;/priority&gt;
+&lt;/url&gt;
+
+&lt;!-- Lower priority: marketing page --&gt;
+&lt;url&gt;
+  &lt;loc&gt;https://example.com/pricing&lt;/loc&gt;
+  &lt;lastmod&gt;2024-11-01&lt;/lastmod&gt;
+  &lt;priority&gt;0.4&lt;/priority&gt;
+&lt;/url&gt;</code></pre>
+
+        <h3>Keep lastmod accurate</h3>
+        <p>
+          AI crawlers use <code>lastmod</code> to decide what to re-index. If you set all pages to today's date,
+          you're telling the crawler everything changed — and it loses the signal. Only update <code>lastmod</code>
+          when the content actually changes. Most frameworks handle this automatically during build.
+        </p>
+
+        <h3>Include your llms.txt and ai.txt paths</h3>
+        <p>
+          While these files are at well-known root paths, including them in your sitemap ensures AI
+          crawlers discover them even if they don't check the root directory first:
+        </p>
+        <pre><code>&lt;url&gt;
+  &lt;loc&gt;https://example.com/llms.txt&lt;/loc&gt;
+  &lt;lastmod&gt;2025-01-15&lt;/lastmod&gt;
+  &lt;priority&gt;0.3&lt;/priority&gt;
+&lt;/url&gt;
+&lt;url&gt;
+  &lt;loc&gt;https://example.com/ai.txt&lt;/loc&gt;
+  &lt;lastmod&gt;2025-01-15&lt;/lastmod&gt;
+  &lt;priority&gt;0.3&lt;/priority&gt;
+&lt;/url&gt;</code></pre>
+
+        <h3>Separate sitemaps for content types</h3>
+        <p>
+          If you have different AI policies for different content (e.g., docs are open for training but
+          user forums are not), using separate sitemaps makes your robots.txt rules cleaner and helps
+          AI crawlers understand your content structure:
+        </p>
+        <pre><code># robots.txt
+Sitemap: https://example.com/sitemap-docs.xml
+Sitemap: https://example.com/sitemap-blog.xml
+Sitemap: https://example.com/sitemap-forum.xml</code></pre>
       </section>
 
-      <section>
-        <h2>Framework Integration</h2>
-        <p>Most modern frameworks can auto-generate sitemaps:</p>
+      <!-- ─── Frameworks ─── -->
+      <section id="frameworks">
+        <h2>Framework integration</h2>
+        <p>Most modern frameworks can auto-generate sitemaps. Here's how to set it up:</p>
+
+        <h3>Astro</h3>
+        <pre><code set:html={astroCode} /></pre>
+
+        <h3>Next.js (App Router)</h3>
+        <pre><code set:html={nextjsCode} /></pre>
+
+        <h3>Nuxt 3</h3>
+        <pre><code set:html={nuxtCode} /></pre>
+
+        <h3>SvelteKit</h3>
+        <pre><code set:html={sveltekitCode} /></pre>
+
+        <h3>All frameworks</h3>
         <table>
           <thead>
-            <tr><th>Framework</th><th>Solution</th></tr>
+            <tr><th>Framework</th><th>Solution</th><th>Auto-generates?</th></tr>
           </thead>
           <tbody>
-            <tr><td>Astro</td><td><code>@astrojs/sitemap</code> integration</td></tr>
-            <tr><td>Next.js</td><td>Built-in <code>app/sitemap.ts</code> (App Router) or <code>next-sitemap</code></td></tr>
-            <tr><td>WordPress</td><td>Built-in since WP 5.5, or use Yoast SEO</td></tr>
-            <tr><td>Shopify</td><td>Auto-generated at <code>/sitemap.xml</code></td></tr>
-            <tr><td>Static sites</td><td>Generate during build with any sitemap generator</td></tr>
+            <tr><td>Astro</td><td><code>@astrojs/sitemap</code> integration</td><td>Yes, at build time</td></tr>
+            <tr><td>Next.js</td><td><code>app/sitemap.ts</code> (App Router) or <code>next-sitemap</code></td><td>Yes</td></tr>
+            <tr><td>Nuxt 3</td><td><code>@nuxtjs/sitemap</code> module</td><td>Yes, with SSR support</td></tr>
+            <tr><td>SvelteKit</td><td>Custom <code>+server.ts</code> route</td><td>Manual or with plugins</td></tr>
+            <tr><td>Remix</td><td><code>remix-sitemap</code> or custom resource route</td><td>Manual</td></tr>
+            <tr><td>Gatsby</td><td><code>gatsby-plugin-sitemap</code></td><td>Yes, at build time</td></tr>
+            <tr><td>Hugo</td><td>Built-in (enabled by default in config)</td><td>Yes</td></tr>
+            <tr><td>Jekyll</td><td><code>jekyll-sitemap</code> gem</td><td>Yes, at build time</td></tr>
+            <tr><td>WordPress</td><td>Built-in since WP 5.5, or Yoast SEO</td><td>Yes</td></tr>
+            <tr><td>Shopify</td><td>Auto-generated at <code>/sitemap.xml</code></td><td>Yes</td></tr>
+            <tr><td>Webflow</td><td>Auto-generated in site settings</td><td>Yes</td></tr>
+            <tr><td>Squarespace</td><td>Auto-generated at <code>/sitemap.xml</code></td><td>Yes</td></tr>
           </tbody>
         </table>
       </section>
 
-      <section>
-        <h2>How It Relates to AI Readiness</h2>
-        <p>
-          A sitemap is the foundation. It ensures AI crawlers can <em>find</em> your content.
-          Then <a href="/learn/robots-txt">robots.txt</a> controls <em>access</em>,
-          <a href="/learn/llms-txt">llms.txt</a> provides <em>context</em>,
-          and <a href="/learn/ai-txt">ai.txt</a> sets <em>policy</em>.
-        </p>
-        <p>
-          Missing a sitemap costs you 15 points in our AI readiness score. It's the
-          easiest file to add and one of the most impactful.
-        </p>
+      <!-- ─── Validation ─── -->
+      <section id="validation">
+        <h2>Validation & testing</h2>
+        <p>After generating your sitemap, verify it's correct and accessible:</p>
+
+        <h3>Quick checks with curl</h3>
+        <pre><code># Check if sitemap is accessible and returns XML
+curl -sI https://yourdomain.com/sitemap.xml | head -5
+
+# Download and count URLs
+curl -s https://yourdomain.com/sitemap.xml | grep -c "&lt;loc&gt;"
+
+# Verify content type is XML
+curl -sI https://yourdomain.com/sitemap.xml | grep -i content-type
+# Should return: content-type: application/xml (or text/xml)</code></pre>
+
+        <h3>XML validation</h3>
+        <pre><code># Validate XML syntax with xmllint (macOS/Linux)
+curl -s https://yourdomain.com/sitemap.xml | xmllint --noout -
+
+# Validate against the sitemap schema
+curl -s https://yourdomain.com/sitemap.xml | \
+  xmllint --noout --schema https://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd -</code></pre>
+
+        <h3>Online tools</h3>
+        <ul>
+          <li><strong>Google Search Console</strong> — Submit your sitemap and see indexing status, errors, and warnings</li>
+          <li><strong>XML-Sitemaps.com Validator</strong> — Free online validation against the sitemaps.org schema</li>
+          <li><strong>Screaming Frog</strong> — Desktop crawler that can audit sitemaps against your actual site structure</li>
+          <li><strong>llmstxt.codes</strong> — Our scanner checks sitemap presence, validity, and URL count as part of the AI readiness score</li>
+        </ul>
+      </section>
+
+      <!-- ─── Best Practices ─── -->
+      <section id="best-practices">
+        <h2>Best practices</h2>
+        <div class="practices-grid">
+          <div class="do-col">
+            <h3>Do</h3>
+            <ul>
+              <li>Keep sitemaps under 50MB / 50,000 URLs — use a sitemap index for larger sites</li>
+              <li>Include accurate <code>lastmod</code> dates — it's the most useful field for AI crawlers</li>
+              <li>Reference your sitemap in robots.txt: <code>Sitemap: https://example.com/sitemap.xml</code></li>
+              <li>Auto-generate sitemaps during build — don't maintain them by hand</li>
+              <li>Only include canonical URLs — no duplicates, no redirects, no error pages</li>
+              <li>Include only pages that return 200 status codes</li>
+              <li>Use HTTPS URLs (match your canonical domain)</li>
+              <li>Update your sitemap when content changes</li>
+              <li>Set <code>priority</code> relative to your own pages (homepage 1.0, key docs 0.8, etc.)</li>
+            </ul>
+          </div>
+          <div class="dont-col">
+            <h3>Don't</h3>
+            <ul>
+              <li>Don't include pages blocked by robots.txt — it sends mixed signals</li>
+              <li>Don't set all pages to <code>priority: 1.0</code> — it makes the signal meaningless</li>
+              <li>Don't use today's date as <code>lastmod</code> for all pages — only update when content changes</li>
+              <li>Don't include <code>noindex</code> pages in your sitemap</li>
+              <li>Don't include URLs that redirect (301/302)</li>
+              <li>Don't forget to update the sitemap when you delete pages</li>
+              <li>Don't include query parameter variations of the same page</li>
+              <li>Don't put your sitemap behind authentication or rate limiting</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Common Mistakes ─── -->
+      <section id="mistakes">
+        <h2>Common mistakes</h2>
+        <table>
+          <thead>
+            <tr><th>Mistake</th><th>Impact</th><th>Fix</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Stale <code>lastmod</code> dates</td>
+              <td>Crawlers skip pages that appear unchanged, missing real updates</td>
+              <td>Auto-generate lastmod from file modification time or git commit date</td>
+            </tr>
+            <tr>
+              <td>Including <code>noindex</code> pages</td>
+              <td>Contradicts your indexing intent; crawlers waste budget on pages you don't want indexed</td>
+              <td>Filter out pages with noindex meta tags during sitemap generation</td>
+            </tr>
+            <tr>
+              <td>Broken URLs (404s)</td>
+              <td>Damages crawler trust; they may reduce crawl frequency</td>
+              <td>Run a link checker against your sitemap before deploying</td>
+            </tr>
+            <tr>
+              <td>Missing from robots.txt</td>
+              <td>Crawlers may never discover your sitemap (they check robots.txt first)</td>
+              <td>Add <code>Sitemap: https://yourdomain.com/sitemap.xml</code> to robots.txt</td>
+            </tr>
+            <tr>
+              <td>Wrong content type</td>
+              <td>Some parsers reject sitemaps served as <code>text/html</code></td>
+              <td>Serve as <code>application/xml</code> or <code>text/xml</code></td>
+            </tr>
+            <tr>
+              <td>Mixed HTTP/HTTPS URLs</td>
+              <td>Crawlers may treat them as different pages, splitting crawl budget</td>
+              <td>Use only your canonical protocol (HTTPS) in all <code>&lt;loc&gt;</code> elements</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ─── FAQ ─── -->
+      <section id="faq">
+        <h2>FAQ</h2>
+
+        <div class="faq-item">
+          <h3>Does the priority field actually matter?</h3>
+          <p>
+            Mostly no. Google has publicly stated they ignore <code>priority</code> and <code>changefreq</code>.
+            Other search engines may use them as weak signals. AI crawlers vary — some respect them, most don't.
+            The one field that consistently matters is <code>lastmod</code>. Set priority for completeness,
+            but don't over-optimize it.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>How often should I update my sitemap?</h3>
+          <p>
+            Every time your content changes. If you use a static site generator (Astro, Next.js, Hugo),
+            the sitemap rebuilds automatically on deploy. For dynamic sites (WordPress, custom apps),
+            regenerate when pages are created, updated, or deleted. Don't regenerate on a schedule
+            if content hasn't changed — that makes <code>lastmod</code> unreliable.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>What's the maximum sitemap size?</h3>
+          <p>
+            50MB uncompressed and 50,000 URLs per sitemap file. For larger sites, use a sitemap index
+            that references multiple sitemap files. There's no limit on how many sitemaps a sitemap
+            index can reference. You can also gzip your sitemaps (<code>sitemap.xml.gz</code>) to
+            reduce bandwidth.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Do AI crawlers actually use sitemaps?</h3>
+          <p>
+            Yes. GPTBot, ClaudeBot, Google-Extended, and PerplexityBot all check sitemaps for
+            content discovery. AI training pipelines at scale use sitemaps as their primary URL
+            discovery mechanism (it's far more efficient than recursive crawling). Sitemaps are
+            especially important for RAG applications that need to index your entire site.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Can I have multiple sitemaps?</h3>
+          <p>
+            Yes. Use a sitemap index file, or list multiple sitemaps in robots.txt with separate
+            <code>Sitemap:</code> directives. This is useful for separating content types (blog,
+            docs, products) or when different content sections have different update frequencies.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Should I include images and videos?</h3>
+          <p>
+            For search engines, yes — Google supports image and video sitemap extensions. For AI
+            crawlers, it depends. Text-focused AI models (LLMs) primarily care about page URLs.
+            Multimodal AI models may benefit from image sitemaps. If you're focused on AI readiness,
+            prioritize getting your page URLs right first.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Does my sitemap need to list every page?</h3>
+          <p>
+            Ideally yes — a complete sitemap gives crawlers the full picture. However, you can
+            strategically exclude pages you don't want AI to index (login pages, admin panels,
+            thin content). The key is: every page in your sitemap should be a valid, useful,
+            canonical URL that you want AI to know about.
+          </p>
+        </div>
+      </section>
+
+      <!-- ─── Checklist ─── -->
+      <section id="implementation">
+        <h2>Implementation checklist</h2>
+        <ul class="checklist">
+          <li>Generate a sitemap.xml for your site using your framework's built-in tool or a plugin</li>
+          <li>Verify it's accessible at <code>https://yourdomain.com/sitemap.xml</code></li>
+          <li>Ensure it returns <code>application/xml</code> or <code>text/xml</code> content type</li>
+          <li>Include all canonical, indexable pages (200 status, no noindex)</li>
+          <li>Add accurate <code>lastmod</code> dates (not all set to today)</li>
+          <li>Add the <code>Sitemap:</code> directive to your robots.txt</li>
+          <li>Submit to Google Search Console for indexing monitoring</li>
+          <li>Verify URL count matches your expectations (<code>curl -s sitemap.xml | grep -c "&lt;loc&gt;"</code>)</li>
+          <li>Check for broken URLs — every <code>&lt;loc&gt;</code> should return 200</li>
+          <li>Set up automatic regeneration on content changes or deploys</li>
+          <li>For large sites: use a sitemap index with sub-sitemaps by content type</li>
+          <li>Scan your site to verify detection: <a href="/">llmstxt.codes scanner</a></li>
+        </ul>
       </section>
 
       <div class="cta-box">
         <h3>Check your sitemap</h3>
-        <p>Verify your sitemap.xml is valid and discoverable.</p>
+        <p>Verify your sitemap.xml is valid, discoverable, and contributing to your AI readiness score.</p>
         <a href="/" class="action-btn action-btn-primary">Scan your domain</a>
       </div>
     </div>
@@ -121,12 +502,21 @@ export const prerender = true;
   h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-4); }
   .lead { font-size: var(--text-lg); color: var(--color-text-secondary); line-height: var(--leading-relaxed); margin-bottom: var(--space-8); }
 
+  /* TOC */
+  .toc { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4) var(--space-6); margin-bottom: var(--space-10); }
+  .toc-title { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin: 0 0 var(--space-2) 0; }
+  .toc ul { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: var(--space-6); }
+  .toc li { margin-bottom: var(--space-1); break-inside: avoid; }
+  .toc a { font-size: var(--text-sm); color: var(--color-primary); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
   h2 { font-size: var(--text-xl); font-weight: 600; margin-top: var(--space-10); margin-bottom: var(--space-4); }
   h3 { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-6); margin-bottom: var(--space-3); }
 
   section { margin-bottom: var(--space-8); }
   ul, ol { padding-left: var(--space-6); margin-bottom: var(--space-4); }
   li { margin-bottom: var(--space-2); line-height: var(--leading-relaxed); }
+  p { line-height: var(--leading-relaxed); margin-bottom: var(--space-3); }
 
   code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-bg); padding: 1px 4px; border-radius: var(--radius-sm); }
   pre { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); overflow-x: auto; margin: var(--space-4) 0; }
@@ -135,8 +525,30 @@ export const prerender = true;
   table { width: 100%; border-collapse: collapse; margin: var(--space-4) 0; }
   th, td { padding: var(--space-3); text-align: left; border-bottom: 1px solid var(--color-border); }
   th { font-weight: 600; font-size: var(--text-sm); color: var(--color-text-secondary); }
-  td { font-size: var(--text-sm); }
+  td { font-size: var(--text-sm); line-height: var(--leading-relaxed); }
 
+  /* Practices grid */
+  .practices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-top: var(--space-4); }
+  .do-col, .dont-col { padding: var(--space-4); border-radius: var(--radius-md); }
+  .do-col { background: #f0fdf4; border: 1px solid #86efac; }
+  .dont-col { background: #fef2f2; border: 1px solid #fca5a5; }
+  .do-col h3 { color: #166534; margin-top: 0; }
+  .dont-col h3 { color: #991b1b; margin-top: 0; }
+  .do-col ul, .dont-col ul { padding-left: var(--space-4); margin-bottom: 0; }
+  .do-col li, .dont-col li { font-size: var(--text-sm); }
+
+  /* FAQ */
+  .faq-item { margin-bottom: var(--space-6); padding-bottom: var(--space-6); border-bottom: 1px solid var(--color-border); }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-item h3 { margin-top: 0; font-size: var(--text-base); }
+  .faq-item p { font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: 0; }
+
+  /* Checklist */
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding-left: var(--space-6); position: relative; font-size: var(--text-sm); }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: var(--color-text-muted); }
+
+  /* CTA */
   .cta-box {
     margin-top: var(--space-12); padding: var(--space-8); background: var(--color-primary-light);
     border-radius: var(--radius-lg); text-align: center;
@@ -149,4 +561,9 @@ export const prerender = true;
   :global(.action-btn-primary:hover) { background: var(--color-primary-hover); text-decoration: none; }
   :global(.action-btn-secondary) { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
   :global(.action-btn-secondary:hover) { background: var(--color-bg); }
+
+  @media (max-width: 640px) {
+    .toc ul { columns: 1; }
+    .practices-grid { grid-template-columns: 1fr; }
+  }
 </style>

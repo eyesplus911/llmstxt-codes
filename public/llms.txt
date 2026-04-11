@@ -1,22 +1,30 @@
 # llmstxt.codes
 
-> AI Readiness Scanner — check if your website is ready for AI crawlers and language models.
+> AI Readiness Scanner & Web Standards Hub — check if your website is ready for AI crawlers and language models. Free scanner, generators, API, and comprehensive learning resources.
+
+## What it does
+
+llmstxt.codes scans any domain for four AI-relevant files (llms.txt, robots.txt, ai.txt, sitemap.xml), computes a weighted AI Readiness Score (0-100), and provides actionable improvement suggestions. Scoring v2 weights: llms.txt 44%, robots.txt 28%, sitemap 17%, ai.txt 11%.
 
 ## Tools
 
-- [Scanner](https://llmstxt.codes/): Scan any domain for AI readiness
-- [Playground](https://llmstxt.codes/tools/playground): Validate llms.txt files in real-time
-- [llms.txt Generator](https://llmstxt.codes/tools/generator/llms-txt): Generate an llms.txt file
-- [robots.txt Generator](https://llmstxt.codes/tools/generator/robots-txt): Configure AI crawler access
+- [Scanner](https://llmstxt.codes/): Scan any domain for AI readiness — get a score, tier, sub-scores, and improvement suggestions
+- [Playground](https://llmstxt.codes/tools/playground): Validate and preview llms.txt files in real-time
+- [llms.txt Generator](https://llmstxt.codes/tools/generator/llms-txt): Generate an llms.txt file with guided form
+- [robots.txt Generator](https://llmstxt.codes/tools/generator/robots-txt): Configure AI crawler access rules
 - [ai.txt Generator](https://llmstxt.codes/tools/generator/ai-txt): Declare AI usage policies
 
 ## Learn
 
-- [What is llms.txt?](https://llmstxt.codes/learn/llms-txt): The AI README standard for websites
-- [robots.txt and AI](https://llmstxt.codes/learn/robots-txt): Control AI crawler access
-- [What is ai.txt?](https://llmstxt.codes/learn/ai-txt): AI usage policy declarations
-- [Sitemaps and AI](https://llmstxt.codes/learn/sitemap): Help AI crawlers discover your content
+- [What is llms.txt? Complete Guide](https://llmstxt.codes/learn/llms-txt): The definitive guide — spec, real-world examples (Anthropic, Stripe, Cloudflare), best practices, FAQ, and implementation checklist
+- [robots.txt and AI: Complete Guide](https://llmstxt.codes/learn/robots-txt): AI crawler list (18 bots), directive reference, training vs browsing distinction, configuration patterns, FAQ
+- [What is ai.txt? Complete Guide](https://llmstxt.codes/learn/ai-txt): Emerging AI usage policy standard — format spec, real examples (news, OSS, e-commerce), comparison with TDM headers, adoption status, FAQ
+- [Sitemaps and AI: Complete Guide](https://llmstxt.codes/learn/sitemap): AI-specific sitemap strategies, full XML spec, framework integration (Astro, Next.js, Nuxt, SvelteKit, +8 more), validation, FAQ
+
+## API
+
+- [API Reference](https://llmstxt.codes/docs/api): Free REST API — scan, score, badge, fetch, and save endpoints. No auth required. CORS enabled. Includes curl, JavaScript, and Python examples, plus CI/CD integration guide.
 
 ## About
 
-- [About](https://llmstxt.codes/about): How scoring works, what we check, and the API
+- [About](https://llmstxt.codes/about): Mission, scoring methodology (v2 weights), tier system, privacy policy, roadmap, and tech stack
